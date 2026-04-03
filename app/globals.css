@@ -37,18 +37,12 @@ body {
   border-radius: 4px;
 }
 
-/* Complex Backgrounds (Manual CSS needed) */
-.nav-gradient {
-  background: linear-gradient(to bottom, rgba(10, 22, 40, 0.95), rgba(10, 22, 40, 0));
-  backdrop-filter: blur(10px);
-}
-
-.hero-overlay {
-  background: linear-gradient(135deg, rgba(10, 22, 40, 0.7), rgba(13, 77, 86, 0.6));
-}
-
-.banner-overlay {
-  background: linear-gradient(rgba(10, 22, 40, 0.3), rgba(10, 22, 40, 0.3));
+@utility no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .cta-radial::before {

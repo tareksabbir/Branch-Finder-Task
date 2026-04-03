@@ -10,7 +10,7 @@ const ImageBanner = () => {
           "url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1600&q=90')",
       }}
     >
-      <div className="banner-overlay absolute inset-0" />
+      <div className="bg-midnight/30 absolute inset-0" />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}

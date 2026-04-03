@@ -6,16 +6,15 @@ import ImageBanner from "@/components/home/imageBanner";
 import Modal from "@/components/home/modal";
 import Products from "@/components/home/products";
 import Trust from "@/components/home/trust";
-import Footer from "@/components/layout/footer";
-import Navbar from "@/components/layout/navbar";
+
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <main className="relative">
-      <Navbar />
       <Hero />
       <Features />
       <ImageBanner />
@@ -32,16 +31,16 @@ export default function Home() {
             Join us today and experience banking that's truly designed for your
             success.
           </p>
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={() => setIsModalOpen(true)}
-            className="py-4 px-10 rounded-full font-medium text-midnight bg-gold shadow-lg hover:-translate-y-1 transition-all duration-400"
           >
             Open Your Account
-          </button>
+          </Button>
         </div>
       </section>
 
-      <Footer />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </main>

@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 const products = [
   {
@@ -26,6 +27,8 @@ const products = [
   },
 ];
 
+import { Card, CardHeader, CardContent } from "@/components/ui/Card";
+
 const Products = () => {
   return (
     <section
@@ -46,22 +49,24 @@ const Products = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-350 mx-auto">
         {products.map((p, i) => (
-          <motion.div
+          <Card
             key={i}
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: i * 0.1 }}
             viewport={{ once: true }}
-            whileHover={{ y: -10 }}
-            className="rounded-[25px] overflow-hidden bg-linear-to-br from-navy to-deep-teal shadow-lg"
+            hover
+            className="bg-linear-to-br from-navy to-deep-teal border-none shadow-lg text-warm-white h-full"
           >
-            <div
-              className="h-75 bg-cover bg-center relative"
-              style={{ backgroundImage: `url('${p.img}')` }}
-            >
-              <div className="absolute inset-0 bg-linear-to-t from-midnight/90 to-transparent" />
-            </div>
-            <div className="p-10">
+            <CardHeader>
+              <div
+                className="h-75 bg-cover bg-center relative"
+                style={{ backgroundImage: `url('${p.img}')` }}
+              >
+                <div className="absolute inset-0 bg-linear-to-t from-midnight/90 to-transparent" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-10 flex flex-col flex-1">
               <h3 className="font-playfair text-2xl font-semibold mb-4">
                 {p.title}
               </h3>
@@ -72,21 +77,23 @@ const Products = () => {
                     key={idx}
                     className="text-cream font-light flex items-center gap-2"
                   >
-                    <span className="text-gold">•</span> {f}
+                    <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" /> {f}
                   </li>
                 ))}
               </ul>
-              <a
-                href="#"
-                className="text-gold font-medium hover:gap-4 transition-all flex items-center gap-2 group"
-              >
-                Learn More{" "}
-                <span className="transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </a>
-            </div>
-          </motion.div>
+              <div className="mt-auto pt-4 flex">
+                <a
+                  href="#"
+                  className="text-gold font-medium hover:gap-4 transition-all flex items-center gap-2 group"
+                >
+                  Learn More{" "}
+                  <span className="transition-transform group-hover:translate-x-1">
+                    <ArrowRight className="w-5 h-5" />
+                  </span>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </section>

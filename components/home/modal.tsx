@@ -2,6 +2,8 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, X } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 const Modal = ({
   isOpen,
@@ -43,12 +45,14 @@ const Modal = ({
             className="bg-warm-white rounded-[30px] w-[90%] max-w-137.5 p-12 relative shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleClose}
-              className="absolute top-6 right-6 w-10 h-10 bg-cream rounded-full flex items-center justify-center text-2xl text-midnight hover:bg-midnight hover:text-warm-white transition-colors"
+              className="absolute top-6 right-6 w-10 h-10 bg-cream hover:bg-midnight hover:text-warm-white p-0"
             >
-              ×
-            </button>
+              <X className="w-6 h-6" />
+            </Button>
 
             {step !== 4 && (
               <div className="mb-10">
@@ -92,12 +96,14 @@ const Modal = ({
                       className="w-full p-4 border-2 border-cream rounded-[15px] focus:border-gold focus:outline-none"
                     />
                   </div>
-                  <button
+                  <Button
                     onClick={nextStep}
-                    className="w-full mt-8 bg-gold text-midnight py-4 rounded-full font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
+                    variant="primary"
+                    fullWidth
+                    className="mt-8"
                   >
                     Next
-                  </button>
+                  </Button>
                 </motion.div>
               )}
 
@@ -120,18 +126,20 @@ const Modal = ({
                     <option>Wealth Management</option>
                   </select>
                   <div className="flex gap-4 mt-8">
-                    <button
+                    <Button
                       onClick={prevStep}
-                      className="flex-1 bg-cream text-midnight py-4 rounded-full font-medium hover:bg-midnight hover:text-warm-white transition-colors"
+                      variant="secondary"
+                      fullWidth
                     >
                       Back
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={nextStep}
-                      className="flex-1 bg-gold text-midnight py-4 rounded-full font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
+                      variant="primary"
+                      fullWidth
                     >
                       Next
-                    </button>
+                    </Button>
                   </div>
                 </motion.div>
               )}
@@ -165,18 +173,20 @@ const Modal = ({
                     </span>
                   </label>
                   <div className="flex gap-4 mt-8">
-                    <button
+                    <Button
                       onClick={prevStep}
-                      className="flex-1 bg-cream text-midnight py-4 rounded-full font-medium hover:bg-midnight hover:text-warm-white transition-colors"
+                      variant="secondary"
+                      fullWidth
                     >
                       Back
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleSubmit}
-                      className="flex-1 bg-gold text-midnight py-4 rounded-full font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
+                      variant="primary"
+                      fullWidth
                     >
                       Submit
-                    </button>
+                    </Button>
                   </div>
                 </motion.div>
               )}
@@ -188,23 +198,8 @@ const Modal = ({
                   animate={{ opacity: 1, scale: 1 }}
                   className="text-center py-8"
                 >
-                  <div className="w-24 h-24 mx-auto mb-6 text-green-500">
-                    <svg viewBox="0 0 52 52">
-                      <circle
-                        cx="26"
-                        cy="26"
-                        r="25"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <path
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        d="M14.1 27.2l7.1 7.2 16.7-16.8"
-                      />
-                    </svg>
+                  <div className="mx-auto mb-6 flex justify-center text-green-500">
+                    <CheckCircle className="w-24 h-24" strokeWidth={2} />
                   </div>
                   <h2 className="font-playfair text-[2.2rem] font-bold text-green-600 mb-2">
                     Success
@@ -212,12 +207,13 @@ const Modal = ({
                   <p className="text-slate mb-8">
                     Welcome to Brightstream. We'll be in touch shortly.
                   </p>
-                  <button
+                  <Button
                     onClick={handleClose}
-                    className="bg-gold text-midnight py-4 px-10 rounded-full font-medium shadow-lg"
+                    variant="primary"
+                    className="px-10"
                   >
                     Continue
-                  </button>
+                  </Button>
                 </motion.div>
               )}
             </AnimatePresence>
