@@ -6,9 +6,14 @@
 
 ## 📹 Video Walkthrough
 
-[![Brightstream Branch Finder Demo](https://cdn.loom.com/sessions/thumbnails/1cddebc7bbd8433ca5ae3662da848461-00001.jpg)](https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461)
-<br/>
-> **[🎬 Watch the Loom Demo Walkthrough](https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461)**
+<div>
+  <a href="https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461">
+    <p>Branch Finder — Brightstream Bank - 4 April 2026 - Watch Video</p>
+  </a>
+  <a href="https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461">
+    <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/1cddebc7bbd8433ca5ae3662da848461-3e59b882677b3fc3-full-play.gif#t=0.1">
+  </a>
+</div>
 
 ---
 
