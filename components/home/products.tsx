@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 const products = [
@@ -77,7 +77,8 @@ const Products = () => {
                     key={idx}
                     className="text-cream font-light flex items-center gap-2"
                   >
-                    <CheckCircle2 className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" /> {f}
+                    <CheckCircle2 className="w-4 h-4 text-gold shrink-0 mt-0.5" />{" "}
+                    {f}
                   </li>
                 ))}
               </ul>

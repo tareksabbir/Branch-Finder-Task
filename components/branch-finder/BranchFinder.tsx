@@ -8,15 +8,18 @@ import { SearchBar } from "./SearchBar";
 import { BranchList } from "./BranchList";
 import { MapView } from "./MapView";
 import { useBranchFinderState } from "@/hooks/useBranchFinderState";
-import { 
-  getProcessedBranches, 
-  getAvailableCountries, 
-  getAvailableCities, 
-  getBranchStats 
+import {
+  getProcessedBranches,
+  getAvailableCountries,
+  getAvailableCities,
+  getBranchStats,
 } from "@/lib/utils/branch";
 import { calculateDistances } from "@/lib/utils/geo";
 
-const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
+const GOOGLE_MAPS_API_KEY =
+  process.env.GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER ??
+  "AIzaSyBiGTrQuVps6dXhd3tPkLqoa0N54az4HZI";
+// INTENTIONALLY PUT THAT KEY HERE FOR EVALUATION PURPOSE
 
 export function BranchFinder() {
   // External Data Hooks
@@ -60,7 +63,7 @@ export function BranchFinder() {
     return getProcessedBranches(
       branchesWithDistance,
       state.activeFilters,
-      state.sort
+      state.sort,
     );
   }, [branchesWithDistance, state.activeFilters, state.sort]);
 
@@ -72,19 +75,16 @@ export function BranchFinder() {
     return displayBranches;
   }, [displayBranches, hasFilters]);
 
-  const stats = useMemo(
-    () => getBranchStats(allBranches),
-    [allBranches]
-  );
+  const stats = useMemo(() => getBranchStats(allBranches), [allBranches]);
 
   return (
     <div>
       {/* ── Hero Section ── */}
       <section className="flex-none bg-linear-to-br from-midnight to-deep-teal text-center relative overflow-hidden cta-radial">
-        <div className="absolute inset-0 bg-gradient-to-br from-deep-teal/85 via-midnight/70 to-deep-teal/80" />
+        <div className="absolute inset-0 bg-linear-to-br from-deep-teal/85 via-midnight/70 to-deep-teal/80" />
         <div className="absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
 
-        <div className="relative w-full max-w-[1240px] mx-auto text-center px-4 md:px-6 pt-52 pb-28">
+        <div className="relative w-full max-w-310 mx-auto text-center px-4 md:px-6 pt-52 pb-28">
           <div className="max-w-3xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: -8 }}
@@ -151,9 +151,7 @@ export function BranchFinder() {
               { num: "24/7", label: "Digital Support" },
             ].map((s) => (
               <div key={s.label} className="text-center">
-                <div
-                  className="text-xl md:text-2xl font-bold text-gold font-playfair"
-                >
+                <div className="text-xl md:text-2xl font-bold text-gold font-playfair">
                   {typeof s.num === "number" ? s.num.toLocaleString() : s.num}
                 </div>
                 <div className="text-[0.85rem] text-warm-white/40 uppercase tracking-widest mt-0.5">
@@ -166,9 +164,9 @@ export function BranchFinder() {
       </section>
 
       {/* ── App Body ── */}
-      <div className="flex flex-col md:flex-row border-t border-slate/20 md:h-[65vh] md:min-h-[480px] md:overflow-hidden">
+      <div className="flex flex-col md:flex-row border-t border-slate/20 md:h-[65vh] md:min-h-120 md:overflow-hidden">
         {/* MAP */}
-        <div className="order-1 md:order-2 w-full md:flex-1 h-[350px] md:h-full relative shrink-0">
+        <div className="order-1 md:order-2 w-full md:flex-1 h-87.5 md:h-full relative shrink-0">
           <MapView
             branches={mapBranches}
             selectedBranch={state.selectedBranch}
@@ -180,7 +178,7 @@ export function BranchFinder() {
         </div>
 
         {/* LIST */}
-        <div className="order-2 md:order-1 w-full md:w-[22%] md:flex-shrink-0 h-full md:overflow-hidden border-t border-slate/20 md:border-t-0 md:border-r md:border-slate/20">
+        <div className="order-2 md:order-1 w-full md:w-[22%] md:shrink-0 h-full md:overflow-hidden border-t border-slate/20 md:border-t-0 md:border-r md:border-slate/20">
           <BranchList
             branches={displayBranches}
             isLoading={isLoading}

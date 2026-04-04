@@ -126,18 +126,10 @@ const Modal = ({
                     <option>Wealth Management</option>
                   </select>
                   <div className="flex gap-4 mt-8">
-                    <Button
-                      onClick={prevStep}
-                      variant="secondary"
-                      fullWidth
-                    >
+                    <Button onClick={prevStep} variant="secondary" fullWidth>
                       Back
                     </Button>
-                    <Button
-                      onClick={nextStep}
-                      variant="primary"
-                      fullWidth
-                    >
+                    <Button onClick={nextStep} variant="primary" fullWidth>
                       Next
                     </Button>
                   </div>
@@ -173,18 +165,10 @@ const Modal = ({
                     </span>
                   </label>
                   <div className="flex gap-4 mt-8">
-                    <Button
-                      onClick={prevStep}
-                      variant="secondary"
-                      fullWidth
-                    >
+                    <Button onClick={prevStep} variant="secondary" fullWidth>
                       Back
                     </Button>
-                    <Button
-                      onClick={handleSubmit}
-                      variant="primary"
-                      fullWidth
-                    >
+                    <Button onClick={handleSubmit} variant="primary" fullWidth>
                       Submit
                     </Button>
                   </div>

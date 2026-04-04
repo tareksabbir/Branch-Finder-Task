@@ -45,11 +45,11 @@ export function SearchBar({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex flex-col lg:flex-row items-center gap-3 lg:gap-0 bg-warm-white lg:rounded-full rounded-2xl shadow-xl border border-slate/20 p-3 lg:pl-5 lg:pr-2 lg:py-2 max-w-[1100px] mx-auto"
+      className="flex flex-col lg:flex-row items-center gap-3 lg:gap-0 bg-warm-white lg:rounded-full rounded-2xl shadow-xl border border-slate/20 p-3 lg:pl-5 lg:pr-2 lg:py-2 max-w-275 mx-auto"
     >
       {/* Branch Name */}
       <div className="w-full flex-1 flex items-center bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
-        <Search className="text-gold flex-shrink-0 w-5 h-5 mr-3" strokeWidth={2} />
+        <Search className="text-gold shrink-0 w-5 h-5 mr-3" strokeWidth={2} />
         <input
           type="text"
           value={branchName}
@@ -60,11 +60,14 @@ export function SearchBar({
         />
       </div>
 
-      <div className="hidden lg:block w-[1px] h-10 bg-slate/20 mx-3 flex-shrink-0" />
+      <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
 
       {/* City Select */}
-      <div className="w-full lg:w-[150px] flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
-        <MapPin className="text-slate/50 flex-shrink-0 w-5 h-5 mr-3 lg:hidden" strokeWidth={2} />
+      <div className="w-full lg:w-37.5 flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
+        <MapPin
+          className="text-slate/50 shrink-0 w-5 h-5 mr-3 lg:hidden"
+          strokeWidth={2}
+        />
         <select
           value={city}
           onChange={(e) => onCityChange(e.target.value)}
@@ -72,17 +75,22 @@ export function SearchBar({
         >
           <option value="">Select City</option>
           {availableCities.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
         <ChevronDown className="w-4 h-4 absolute right-4 lg:right-0 text-slate pointer-events-none" />
       </div>
 
-      <div className="hidden lg:block w-[1px] h-10 bg-slate/20 mx-3 flex-shrink-0" />
+      <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
 
       {/* Country Select */}
-      <div className="w-full lg:w-[190px] flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
-        <MapPin className="text-slate/50 flex-shrink-0 w-5 h-5 mr-3 lg:hidden" strokeWidth={2} />
+      <div className="w-full lg:w-47.5 flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
+        <MapPin
+          className="text-slate/50 shrink-0 w-5 h-5 mr-3 lg:hidden"
+          strokeWidth={2}
+        />
         <select
           value={country}
           onChange={(e) => onCountryChange(e.target.value)}
@@ -98,10 +106,10 @@ export function SearchBar({
         <ChevronDown className="w-4 h-4 absolute right-4 lg:right-0 text-slate pointer-events-none" />
       </div>
 
-      <div className="hidden lg:block w-[1px] h-10 bg-slate/20 mx-3 flex-shrink-0" />
+      <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
 
       {/* Zip Code */}
-      <div className="w-full lg:w-[110px] flex items-center bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
+      <div className="w-full lg:w-27.5 flex items-center bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
         <input
           type="text"
           value={zipCode}
@@ -132,7 +140,9 @@ export function SearchBar({
           size="md"
           className="bg-gold/15 hover:bg-gold/20 flex-1 lg:flex-none"
           title="Near Me"
-          leftIcon={!locating && <LocateFixed className="w-[16px] h-[16px]" strokeWidth={2.5} />}
+          leftIcon={
+            !locating && <LocateFixed className="w-4 h-4" strokeWidth={2.5} />
+          }
           isLoading={locating}
         >
           <span className="lg:hidden xl:inline">Near me</span>

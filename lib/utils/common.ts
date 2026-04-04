@@ -6,7 +6,7 @@ export function cn(...classes: (string | undefined | false | null)[]): string {
 /** Debounce utility */
 export function debounce<T extends (...args: Parameters<T>) => void>(
   fn: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
   let timer: ReturnType<typeof setTimeout>;
   return (...args) => {
@@ -15,14 +15,14 @@ export function debounce<T extends (...args: Parameters<T>) => void>(
   };
 }
 
-/** 
- * Calculate infinite scroll pagination data 
+/**
+ * Calculate infinite scroll pagination data
  * Returns total pages, cumulative list of items up to the current page, and current visible count.
  */
 export function getInfiniteScrollData<T>(
   items: T[],
   page: number,
-  pageSize: number
+  pageSize: number,
 ) {
   return {
     totalPages: Math.ceil(items.length / pageSize),

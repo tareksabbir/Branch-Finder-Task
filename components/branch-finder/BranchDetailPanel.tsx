@@ -4,24 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { Branch } from "@/lib/types";
 import { formatDistance } from "@/lib/utils/geo";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Ruler,
-  Navigation,
-  X,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Ruler, Navigation, X } from "lucide-react";
 
 interface BranchDetailPanelProps {
   branch: Branch | null;
   onClose: () => void;
 }
 
-export function BranchDetailPanel({
-  branch,
-  onClose,
-}: BranchDetailPanelProps) {
+export function BranchDetailPanel({ branch, onClose }: BranchDetailPanelProps) {
   // ESC key close
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -42,7 +32,7 @@ export function BranchDetailPanel({
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           onClick={(e) => e.stopPropagation()}
           className="
-            z-[500]
+            z-500
             pointer-events-auto
             
             /* 📱 Mobile: Screen Bottom Center (Fixed - Sticky behavior) */
@@ -61,13 +51,12 @@ export function BranchDetailPanel({
             md:translate-x-0 
             md:top-6 
             md:right-6 
-            md:w-[22rem]
+            md:w-88
           "
         >
           <div className="relative bg-warm-white shadow-[0_24px_64px_rgba(11,31,58,0.18)] border border-slate/10 rounded-[20px] overflow-hidden">
-
             {/* Top accent */}
-            <div className="h-[3px] w-full bg-gradient-to-r from-gold/0 via-gold to-gold/0" />
+            <div className="h-0.75 w-full bg-linear-to-r from-gold/0 via-gold to-gold/0" />
 
             {/* Header */}
             <div className="relative px-6 pt-5 pb-5 bg-midnight overflow-hidden">
@@ -123,7 +112,12 @@ export function BranchDetailPanel({
               <DetailRow
                 icon={<MapPin />}
                 label="Address"
-                value={[branch.street, branch.city, branch.zipCode, branch.country]
+                value={[
+                  branch.street,
+                  branch.city,
+                  branch.zipCode,
+                  branch.country,
+                ]
                   .filter(Boolean)
                   .join(", ")}
               />
@@ -205,17 +199,17 @@ function DetailRow({
   const content = (
     <div className="flex items-start gap-3 py-2.5 rounded-xl px-2 -mx-2 hover:bg-cream/60 transition">
       <div className="w-8 h-8 rounded-lg grid place-items-center mt-0.5 bg-gold/10 border border-gold/20">
-        <span className="[&>svg]:w-[14px] [&>svg]:h-[14px] [&>svg]:text-gold">
+        <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 [&>svg]:text-gold">
           {icon}
         </span>
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-slate/50 mb-0.5">
+        <p className="text-[0.72rem] font-semibold uppercase tracking-widest text-slate/50 mb-0.5">
           {label}
         </p>
 
-        <p className="text-[0.95rem] text-midnight font-medium leading-snug break-words">
+        <p className="text-[0.95rem] text-midnight font-medium leading-snug wrap-break-word">
           {value}
         </p>
       </div>

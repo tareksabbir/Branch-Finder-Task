@@ -17,10 +17,11 @@ const MissionSection = () => {
         >
           <div className="absolute inset-0 border-2 border-gold/30 -m-6 z-0 hidden lg:block" />
           <div className="relative z-10 w-full h-full overflow-hidden shadow-2xl">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1709050939155-78bb8f4c9fef?q=80&w=3606&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Brightstream Collaboration"
-              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
+              fill
+              className="object-cover grayscale hover:grayscale-0 transition-all duration-700"
             />
           </div>
           {/* Decorative Elements */}

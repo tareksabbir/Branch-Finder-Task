@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/Card";
-import { TrendingUp, CreditCard, PieChart, Star, Wallet } from "lucide-react";
+import { TrendingUp, CreditCard, Star, Wallet } from "lucide-react";
 
 const stats = [
   {
@@ -36,8 +36,6 @@ const stats = [
   },
 ];
 
-
-
 const DashboardStats = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -49,16 +47,26 @@ const DashboardStats = () => {
           viewport={{ once: true }}
           transition={{ delay: index * 0.1, duration: 0.5 }}
         >
-          <Card variant="interactive" hover className="h-full border-slate/5 bg-white/50 backdrop-blur-sm shadow-sm ring-1 ring-slate/5">
+          <Card
+            variant="interactive"
+            hover
+            className="h-full border-slate/5 bg-white/50 backdrop-blur-sm shadow-sm ring-1 ring-slate/5"
+          >
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-warm-white shadow-sm border border-slate/5`}>
+                <div
+                  className={`p-3 rounded-xl bg-warm-white shadow-sm border border-slate/5`}
+                >
                   {stat.icon}
                 </div>
                 {stat.change.startsWith("+") ? (
-                   <span className="text-sage text-sm font-medium">{stat.change}</span>
+                  <span className="text-sage text-sm font-medium">
+                    {stat.change}
+                  </span>
                 ) : (
-                   <span className="text-slate text-sm font-medium">{stat.change}</span>
+                  <span className="text-slate text-sm font-medium">
+                    {stat.change}
+                  </span>
                 )}
               </div>
               <h3 className="text-slate/60 text-sm font-normal uppercase tracking-wider mb-1">

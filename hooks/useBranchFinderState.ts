@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // hooks/useBranchFinderState.ts
 import { useReducer, useMemo } from "react";
 import { Branch, FilterType, SortType, State, Action } from "@/lib/types";

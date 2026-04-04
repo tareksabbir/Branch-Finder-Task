@@ -14,22 +14,35 @@ interface CardProps extends HTMLMotionProps<"div"> {
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ variant = "default", hover = false, active = false, className, children, ...props }, ref) => {
+  (
+    {
+      variant = "default",
+      hover = false,
+      active = false,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     const variants = {
       default: "bg-warm-white border border-slate/10 shadow-sm",
       interactive: cn(
         "bg-warm-white border transition-all duration-200 cursor-pointer",
-        active 
-          ? "border-midnight bg-cream shadow-md" 
-          : "border-slate/10 hover:border-navy hover:shadow-md"
+        active
+          ? "border-midnight bg-cream shadow-md"
+          : "border-slate/10 hover:border-navy hover:shadow-md",
       ),
       glass: "bg-white/70 backdrop-blur-md border border-white/20 shadow-lg",
-      outline: "bg-transparent border border-slate/20 hover:border-gold transition-colors",
+      outline:
+        "bg-transparent border border-slate/20 hover:border-gold transition-colors",
     };
 
-    const hoverAnimation = hover ? {
-      whileHover: { y: -8, transition: { duration: 0.2 } },
-    } : {};
+    const hoverAnimation = hover
+      ? {
+          whileHover: { y: -8, transition: { duration: 0.2 } },
+        }
+      : {};
 
     return (
       <motion.div
@@ -37,7 +50,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         className={cn(
           "rounded-2xl overflow-hidden relative flex flex-col",
           variants[variant],
-          className
+          className,
         )}
         {...hoverAnimation}
         {...props}
@@ -45,7 +58,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         {children}
       </motion.div>
     );
-  }
+  },
 );
 Card.displayName = "Card";
 
@@ -55,9 +68,7 @@ interface CardHeaderProps {
 }
 
 const CardHeader = ({ className, children }: CardHeaderProps) => (
-  <div className={cn("relative z-10", className)}>
-    {children}
-  </div>
+  <div className={cn("relative z-10", className)}>{children}</div>
 );
 
 interface CardContentProps {
@@ -66,9 +77,7 @@ interface CardContentProps {
 }
 
 const CardContent = ({ className, children }: CardContentProps) => (
-  <div className={cn("p-6 md:p-8", className)}>
-    {children}
-  </div>
+  <div className={cn("p-6 md:p-8", className)}>{children}</div>
 );
 
 interface CardFooterProps {

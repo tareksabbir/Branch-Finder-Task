@@ -1,4 +1,3 @@
-import React from "react";
 import PersonalHero from "@/components/personal/PersonalHero";
 import DashboardStats from "@/components/personal/DashboardStats";
 import QuickActions from "@/components/personal/QuickActions";
@@ -7,7 +6,8 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Personal Dashboard — Brightstream Bank",
-  description: "Manage your premium banking experience with Brightstream Thorne.",
+  description:
+    "Manage your premium banking experience with Brightstream Thorne.",
 };
 
 export default function PersonalPage() {
@@ -25,8 +25,12 @@ export default function PersonalPage() {
           {/* Stats Overview */}
           <div className="py-12 border-b border-slate/10">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="font-playfair text-3xl font-bold text-midnight tracking-tight">Financial Overview</h2>
-              <p className="text-midnight/40 text-sm font-medium uppercase tracking-widest">Last Updated: Just Now</p>
+              <h2 className="font-playfair text-3xl font-bold text-midnight tracking-tight">
+                Financial Overview
+              </h2>
+              <p className="text-midnight/40 text-sm font-medium uppercase tracking-widest">
+                Last Updated: Just Now
+              </p>
             </div>
             <DashboardStats />
           </div>

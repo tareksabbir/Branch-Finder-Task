@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
@@ -6,7 +7,7 @@ import { BranchDetailPanel } from "./BranchDetailPanel";
 
 declare global {
   interface Window {
-    google: typeof google;
+    google: any;
     initGoogleMaps: () => void;
   }
 }
@@ -58,13 +59,43 @@ export function MapView({
   apiKey,
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map());
-  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<Map<string, any>>(new Map());
+  const userMarkerRef = useRef<any>(null);
   const isLoadedRef = useRef(false);
+  const prevSelectedIdRef = useRef<string | null>(null);
+
+  const renderMarkers = useCallback(() => {
+    if (!mapInstanceRef.current || !window.google?.maps?.marker) return;
+
+    const { AdvancedMarkerElement } = window.google.maps.marker;
+
+    markersRef.current.forEach((m) => {
+      m.map = null;
+    });
+    markersRef.current.clear();
+
+    branches.forEach((branch) => {
+      if (!branch.lat || !branch.lng) return;
+
+      const isSelected = prevSelectedIdRef.current === branch.id;
+
+      const marker = new AdvancedMarkerElement({
+        position: { lat: branch.lat, lng: branch.lng },
+        map: mapInstanceRef.current!,
+        title: branch.name,
+        content: createBranchPin(isSelected),
+        zIndex: isSelected ? 999 : 1,
+      });
+
+      marker.addEventListener("gmp-click", () => onSelectBranch(branch));
+      markersRef.current.set(branch.id, marker);
+    });
+  }, [branches, onSelectBranch]);
 
   const initMap = useCallback(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current || !window.google?.maps)
+      return;
 
     mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
       zoom: 5,
@@ -83,16 +114,15 @@ export function MapView({
     isLoadedRef.current = true;
     renderMarkers();
 
-    // Notify the Maps API whenever the container is resized so tiles redraw correctly
     const observer = new ResizeObserver(() => {
       if (mapInstanceRef.current && window.google?.maps) {
         window.google.maps.event.trigger(mapInstanceRef.current, "resize");
       }
     });
-    if (mapRef.current) observer.observe(mapRef.current);
 
+    if (mapRef.current) observer.observe(mapRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [renderMarkers]);
 
   useEffect(() => {
     if (window.google?.maps?.marker) {
@@ -118,35 +148,6 @@ export function MapView({
       }
     };
   }, [apiKey, initMap]);
-
-  const prevSelectedIdRef = useRef<string | null>(null);
-
-  const renderMarkers = useCallback(() => {
-    if (!mapInstanceRef.current || !window.google?.maps?.marker) return;
-
-    const { AdvancedMarkerElement } = window.google.maps.marker;
-
-    markersRef.current.forEach((m) => { m.map = null; });
-    markersRef.current.clear();
-
-    branches.forEach((branch) => {
-      if (!branch.lat || !branch.lng) return;
-
-      // Use prevSelectedIdRef so this doesn't re-run on selection change
-      const isSelected = prevSelectedIdRef.current === branch.id;
-
-      const marker = new AdvancedMarkerElement({
-        position: { lat: branch.lat, lng: branch.lng },
-        map: mapInstanceRef.current!,
-        title: branch.name,
-        content: createBranchPin(isSelected),
-        zIndex: isSelected ? 999 : 1,
-      });
-
-      marker.addEventListener("gmp-click", () => onSelectBranch(branch));
-      markersRef.current.set(branch.id, marker);
-    });
-  }, [branches, onSelectBranch]);
 
   useEffect(() => {
     if (isLoadedRef.current) renderMarkers();
@@ -188,7 +189,12 @@ export function MapView({
   }, [selectedBranch]);
 
   useEffect(() => {
-    if (!userLocation || !mapInstanceRef.current || !window.google?.maps?.marker) return;
+    if (
+      !userLocation ||
+      !mapInstanceRef.current ||
+      !window.google?.maps?.marker
+    )
+      return;
 
     const { AdvancedMarkerElement } = window.google.maps.marker;
     if (userMarkerRef.current) userMarkerRef.current.map = null;
@@ -206,10 +212,18 @@ export function MapView({
   }, [userLocation]);
 
   useEffect(() => {
-    if (!isLoadedRef.current || !mapInstanceRef.current || !window.google || branches.length === 0) return;
+    if (
+      !isLoadedRef.current ||
+      !mapInstanceRef.current ||
+      !window.google ||
+      branches.length === 0
+    )
+      return;
 
     const bounds = new window.google.maps.LatLngBounds();
-    branches.forEach((b) => { if (b.lat && b.lng) bounds.extend({ lat: b.lat, lng: b.lng }); });
+    branches.forEach((b) => {
+      if (b.lat && b.lng) bounds.extend({ lat: b.lat, lng: b.lng });
+    });
     mapInstanceRef.current.fitBounds(bounds, 40);
   }, [branches]);
 
@@ -217,12 +231,6 @@ export function MapView({
     <div className="relative w-full h-full">
       {/* Map Container */}
       <div ref={mapRef} className="absolute inset-0" />
-
-      {/* 
-         Branch Detail Panel 
-         এখানে কোনো র‍্যাপার ডিভ নেই। কারণ BranchDetailPanel কম্পোনেন্টটি 
-         নিজেই তার ভেতরে Mobile (fixed) এবং Desktop (absolute) পজিশন হ্যান্ডেল করছে।
-      */}
       {selectedBranch && (
         <BranchDetailPanel branch={selectedBranch} onClose={onCloseDetail} />
       )}

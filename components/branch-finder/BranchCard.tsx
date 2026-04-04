@@ -9,7 +9,12 @@ interface BranchCardProps {
   onClick: () => void;
 }
 
-export function BranchCard({ branch, isActive, index, onClick }: BranchCardProps) {
+export function BranchCard({
+  branch,
+  isActive,
+  index,
+  onClick,
+}: BranchCardProps) {
   return (
     <Card
       variant="interactive"
@@ -21,7 +26,8 @@ export function BranchCard({ branch, isActive, index, onClick }: BranchCardProps
       className="mb-2.5 group"
     >
       {/* Left accent bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-colors rounded-l-xl
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-0.75 transition-colors rounded-l-xl
         ${isActive ? "bg-midnight" : "bg-transparent group-hover:bg-gold"}`}
       />
 
@@ -32,7 +38,7 @@ export function BranchCard({ branch, isActive, index, onClick }: BranchCardProps
             {branch.name}
           </h3>
           {branch.distance != null && (
-            <span className="text-[0.9rem] font-semibold text-gold bg-gold/15 px-2.5 py-1 rounded-full whitespace-nowrap flex-shrink-0">
+            <span className="text-[0.9rem] font-semibold text-gold bg-gold/15 px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">
               {formatDistance(branch.distance)}
             </span>
           )}
@@ -40,14 +46,16 @@ export function BranchCard({ branch, isActive, index, onClick }: BranchCardProps
 
         {/* Address */}
         <p className="text-[1.15rem] text-slate leading-relaxed mb-3">
-          {branch.street}<br />
-          {branch.city}, {branch.zipCode}<br />
+          {branch.street}
+          <br />
+          {branch.city}, {branch.zipCode}
+          <br />
           {branch.country}
         </p>
 
         {/* Footer */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[0.85rem] font-semibold px-2 py-[3px] rounded bg-sage/15 text-deep-teal uppercase tracking-wide">
+          <span className="text-[0.85rem] font-semibold px-2 py-0.75 rounded bg-sage/15 text-deep-teal uppercase tracking-wide">
             {branch.countryCode}
           </span>
           {branch.phone && (

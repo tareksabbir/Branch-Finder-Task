@@ -41,7 +41,6 @@ export default function Home() {
         </div>
       </section>
 
-
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </main>
   );

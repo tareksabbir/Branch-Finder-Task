@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -37,7 +38,9 @@ const Navbar = ({ variant = "transparent" }: NavbarProps) => {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileOpen]);
 
   const isActive = (href: string) => {
@@ -75,13 +78,15 @@ const Navbar = ({ variant = "transparent" }: NavbarProps) => {
                 <Link
                   href={item.href}
                   className={`no-underline font-normal text-[0.95rem] tracking-wide transition-colors duration-300 relative group ${
-                    active ? "text-gold font-medium" : "text-cream hover:text-gold"
+                    active
+                      ? "text-gold font-medium"
+                      : "text-cream hover:text-gold"
                   }`}
                 >
                   {item.name}
                   {/* Underline indicator */}
                   <span
-                    className={`absolute bottom-[-5px] left-0 h-[1.5px] bg-gold transition-all duration-300 ${
+                    className={`absolute -bottom-1.25 left-0 h-[1.5px] bg-gold transition-all duration-300 ${
                       active ? "w-full" : "w-0 group-hover:w-full"
                     }`}
                   />
@@ -98,7 +103,7 @@ const Navbar = ({ variant = "transparent" }: NavbarProps) => {
                   : "bg-gold text-midnight hover:bg-warm-white"
               }`}
             >
-              Get Started
+              Find our Branch
             </Link>
           </li>
         </ul>
@@ -155,7 +160,7 @@ const Navbar = ({ variant = "transparent" }: NavbarProps) => {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="fixed top-0 right-0 w-[80%] max-w-[340px] h-full bg-midnight/95 backdrop-blur-xl z-[45] md:hidden border-l border-warm-white/10 flex flex-col"
+              className="fixed top-0 right-0 w-[80%] max-w-85 h-full bg-midnight/95 backdrop-blur-xl z-45 md:hidden border-l border-warm-white/10 flex flex-col"
             >
               {/* Mobile Menu Header */}
               <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-warm-white/10">

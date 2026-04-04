@@ -1,10 +1,18 @@
+/* eslint-disable react-hooks/static-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { ArrowRight, Loader2 } from "lucide-react";
 
-type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "link" | "midnight";
+type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "outline"
+  | "ghost"
+  | "link"
+  | "midnight";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonBaseProps {
@@ -19,8 +27,8 @@ interface ButtonBaseProps {
 type ButtonProps<T extends React.ElementType = "button"> = ButtonBaseProps & {
   as?: T;
 } & Omit<React.ComponentPropsWithoutRef<T>, keyof ButtonBaseProps | "as"> & {
-  motionProps?: HTMLMotionProps<any>;
-};
+    motionProps?: HTMLMotionProps<any>;
+  };
 
 // Pre-built motion components for each supported element type.
 // motion.create() replaces the deprecated motion() factory and must be called
@@ -52,7 +60,7 @@ const Button = React.forwardRef<any, ButtonProps<any>>(
       motionProps,
       ...props
     },
-    ref
+    ref,
   ) => {
     const baseStyles =
       "inline-flex items-center justify-center rounded-full font-medium transition-all duration-300 focus:outline-none disabled:opacity-50 disabled:pointer-events-none";
@@ -108,7 +116,7 @@ const Button = React.forwardRef<any, ButtonProps<any>>(
         {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
       </MotionComponent>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

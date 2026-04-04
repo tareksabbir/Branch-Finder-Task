@@ -2,7 +2,15 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Coffee, ShoppingBag, Truck, Smartphone, CreditCard, ArrowDownRight, ArrowUpRight } from "lucide-react";
+import {
+  Coffee,
+  ShoppingBag,
+  Truck,
+  Smartphone,
+  CreditCard,
+  ArrowDownRight,
+  ArrowUpRight,
+} from "lucide-react";
 
 const activities = [
   {
@@ -56,12 +64,15 @@ const RecentActivity = () => {
   return (
     <div className="py-12">
       <div className="flex items-center justify-between mb-8">
-        <h2 className="font-playfair text-3xl font-bold text-midnight tracking-tight">Recent Activity</h2>
-        <motion.button 
-           whileHover={{ x: 5 }}
-           className="text-gold text-sm font-medium flex items-center gap-1 group"
+        <h2 className="font-playfair text-3xl font-bold text-midnight tracking-tight">
+          Recent Activity
+        </h2>
+        <motion.button
+          whileHover={{ x: 5 }}
+          className="text-gold text-sm font-medium flex items-center gap-1 group"
         >
-          View Statements <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          View Statements{" "}
+          <ArrowUpRight className="w-4 h-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
         </motion.button>
       </div>
 
@@ -80,29 +91,39 @@ const RecentActivity = () => {
                 {activity.icon}
               </div>
               <div>
-                <h4 className="font-medium text-midnight leading-tight text-lg">{activity.title}</h4>
-                <p className="text-midnight/40 text-sm font-medium uppercase tracking-wider">{activity.category} • {activity.date}</p>
+                <h4 className="font-medium text-midnight leading-tight text-lg">
+                  {activity.title}
+                </h4>
+                <p className="text-midnight/40 text-sm font-medium uppercase tracking-wider">
+                  {activity.category} • {activity.date}
+                </p>
               </div>
             </div>
 
             <div className="flex items-center justify-between md:justify-end w-full md:w-auto gap-8">
-               <div className="text-right">
-                  <p className={`font-bold text-lg ${activity.amount.startsWith("+") ? "text-sage" : "text-midnight"}`}>
-                    {activity.amount}
-                  </p>
-                  <span className={`text-[0.65rem] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full ${
-                    activity.status === "Completed" ? "bg-sage/10 text-sage" : "bg-gold/10 text-gold"
-                  }`}>
-                    {activity.status}
-                  </span>
-               </div>
-               <div className="hidden md:block w-px h-8 bg-slate/10" />
-               <motion.button 
-                 whileHover={{ scale: 1.1 }}
-                 className="p-2 rounded-full bg-cream/50 text-midnight/40 hover:text-gold transition-colors"
+              <div className="text-right">
+                <p
+                  className={`font-bold text-lg ${activity.amount.startsWith("+") ? "text-sage" : "text-midnight"}`}
                 >
-                  <CreditCard className="w-5 h-5" />
-                </motion.button>
+                  {activity.amount}
+                </p>
+                <span
+                  className={`text-[0.65rem] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full ${
+                    activity.status === "Completed"
+                      ? "bg-sage/10 text-sage"
+                      : "bg-gold/10 text-gold"
+                  }`}
+                >
+                  {activity.status}
+                </span>
+              </div>
+              <div className="hidden md:block w-px h-8 bg-slate/10" />
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                className="p-2 rounded-full bg-cream/50 text-midnight/40 hover:text-gold transition-colors"
+              >
+                <CreditCard className="w-5 h-5" />
+              </motion.button>
             </div>
           </motion.div>
         ))}

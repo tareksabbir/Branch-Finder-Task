@@ -87,7 +87,9 @@ const Features = () => {
               <h3 className="font-playfair text-[1.8rem] font-semibold text-midnight mb-4">
                 {f.title}
               </h3>
-              <p className="text-slate font-jost font-light leading-[1.8]">{f.desc}</p>
+              <p className="text-slate font-jost font-light leading-[1.8]">
+                {f.desc}
+              </p>
             </CardContent>
           </Card>
         ))}

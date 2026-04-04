@@ -2,7 +2,7 @@ import { BranchFinder } from "@/components/branch-finder/BranchFinder";
 
 export default function BranchPage() {
   return (
-    <main >
+    <main>
       <BranchFinder />
     </main>
   );

@@ -1,5 +1,7 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import React from "react";
 
 const AdvisorySection = () => {
@@ -28,7 +30,7 @@ const AdvisorySection = () => {
 
           <div className="space-y-8">
             <div className="flex gap-6 items-start">
-              <div className="w-12 h-12 bg-linear-to-br from-gold to-deep-teal rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">
+              <div className="w-12 h-12 bg-linear-to-br from-gold to-deep-teal rounded-full shrink-0 flex items-center justify-center text-white font-bold">
                 1
               </div>
               <div>
@@ -42,7 +44,7 @@ const AdvisorySection = () => {
               </div>
             </div>
             <div className="flex gap-6 items-start">
-              <div className="w-12 h-12 bg-linear-to-br from-gold to-deep-teal rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold">
+              <div className="w-12 h-12 bg-linear-to-br from-gold to-deep-teal rounded-full shrink-0 flex items-center justify-center text-white font-bold">
                 2
               </div>
               <div>
@@ -64,14 +66,15 @@ const AdvisorySection = () => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          className="relative aspect-[4/5] group"
+          className="relative aspect-4/5 group"
         >
           <div className="absolute inset-0 border-2 border-gold/30 -m-8 z-0 hidden lg:block" />
           <div className="relative z-10 w-full h-full overflow-hidden shadow-2xl rounded-2xl">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=2670"
               alt="Wealth Advisory Presentation"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-midnight/20 hover:bg-midnight/10 transition-colors" />
           </div>

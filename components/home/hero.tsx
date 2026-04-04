@@ -9,11 +9,19 @@ const Hero = () => {
       {/* Background with Zoom Animation */}
       <motion.div
         animate={{ scale: 1.1 }}
-        transition={{ duration: 20, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
+        transition={{
+          duration: 20,
+          ease: "linear",
+          repeat: Infinity,
+          repeatType: "reverse",
+        }}
         className="absolute top-0 left-0 w-full h-full bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1600&q=90')" }}
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=1600&q=90')",
+        }}
       >
-        <div className="bg-gradient-to-br from-midnight/70 to-deep-teal/60 absolute inset-0" />
+        <div className="bg-linear-to-br from-midnight/70 to-deep-teal/60 absolute inset-0" />
       </motion.div>
 
       {/* Content */}
@@ -26,16 +34,17 @@ const Hero = () => {
         >
           Banking Reimagined
         </motion.h1>
-        
+
         <motion.p
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
           className="text-[clamp(1.1rem,2vw,1.4rem)] text-cream mb-12 font-light tracking-wide"
         >
-          Experience financial excellence crafted for the way you live, work, and dream. Where innovation meets unparalleled service.
+          Experience financial excellence crafted for the way you live, work,
+          and dream. Where innovation meets unparalleled service.
         </motion.p>
-        
+
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}

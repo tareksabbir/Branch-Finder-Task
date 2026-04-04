@@ -24,8 +24,10 @@ export function FilterChips({ active, onChange }: FilterChipsProps) {
           variant="secondary"
           size="sm"
           onClick={() => onChange(f.value)}
-          className={`py-[6px] border-slate/20 text-slate hover:border-midnight hover:text-midnight ${
-            active === f.value ? "bg-midnight border-midnight text-warm-white" : "bg-warm-white"
+          className={`py-1.5 border-slate/20 text-slate hover:border-midnight hover:text-midnight ${
+            active === f.value
+              ? "bg-midnight border-midnight text-warm-white"
+              : "bg-warm-white"
           }`}
         >
           {f.label}

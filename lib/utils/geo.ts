@@ -13,7 +13,7 @@ export function haversineDistance(
   lat1: number,
   lng1: number,
   lat2: number,
-  lng2: number
+  lng2: number,
 ): number {
   const R = 6371;
   const toRad = (deg: number) => (deg * Math.PI) / 180;
@@ -33,11 +33,16 @@ export function formatDistance(km: number): string {
 
 export function calculateDistances(
   branches: Branch[],
-  userLocation: GeoLocation | null
+  userLocation: GeoLocation | null,
 ): Branch[] {
   if (!userLocation) return branches;
   return branches.map((b) => ({
     ...b,
-    distance: haversineDistance(userLocation.lat, userLocation.lng, b.lat, b.lng),
+    distance: haversineDistance(
+      userLocation.lat,
+      userLocation.lng,
+      b.lat,
+      b.lng,
+    ),
   }));
 }

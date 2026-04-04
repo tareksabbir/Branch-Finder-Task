@@ -29,7 +29,7 @@ const MAX_RETRIES = 2;
 async function gqlFetch(
   variables: { limit: number; skip: number },
   signal?: AbortSignal,
-  attempt = 0
+  attempt = 0,
 ): Promise<BranchApiResponse> {
   const res = await fetch(GQL_ENDPOINT, {
     method: "POST",
@@ -56,7 +56,9 @@ async function gqlFetch(
   return json;
 }
 
-export async function fetchAllBranches(signal?: AbortSignal): Promise<BranchApiItem[]> {
+export async function fetchAllBranches(
+  signal?: AbortSignal,
+): Promise<BranchApiItem[]> {
   // First request — discover total and fetch first page
   const firstData = await gqlFetch({ limit: PAGE_SIZE, skip: 0 }, signal);
 
@@ -69,7 +71,7 @@ export async function fetchAllBranches(signal?: AbortSignal): Promise<BranchApiI
 
     // Parallel fetch remaining pages
     const pagePromises = Array.from({ length: pageCount }, (_, i) =>
-      gqlFetch({ limit: PAGE_SIZE, skip: (i + 1) * PAGE_SIZE }, signal)
+      gqlFetch({ limit: PAGE_SIZE, skip: (i + 1) * PAGE_SIZE }, signal),
     );
 
     const pages = await Promise.all(pagePromises);

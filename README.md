@@ -6,23 +6,21 @@
 
 ## 📹 Video Walkthrough
 
-> **[🎬 Watch the Loom Demo — Add your link here](https://loom.com/)**
->
-> _(Record a short walkthrough of the app and paste the Loom share link above)_
+[![Brightstream Branch Finder Demo](https://cdn.loom.com/sessions/thumbnails/1cddebc7bbd8433ca5ae3662da848461-00001.jpg)](https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461)
+<br/>
+> **[🎬 Watch the Loom Demo Walkthrough](https://www.loom.com/share/1cddebc7bbd8433ca5ae3662da848461)**
 
 ---
 
 ## 🌐 Live Demo
 
-**[→ View Deployed App on Vercel](#)** _(add your Vercel link here)_
+**[→ View Deployed App on Vercel](https://branch-finder-rho.vercel.app)**
 
 ---
 
 ## 📸 Screenshots
 
-| Branch Finder | Map View | Detail Panel |
-|---|---|---|
-| _(add screenshot)_ | _(add screenshot)_ | _(add screenshot)_ |
+![Branch Finder](public/SS1.png)
 
 ---
 
@@ -30,37 +28,37 @@
 
 ### Core Framework
 
-| Package | Version | Why Used |
-|---|---|---|
-| `next` | 16.2.2 | App Router with React Server Components, built-in routing for `/branch`, `/articles`, `/about` etc., and `next/font` for zero-layout-shift font loading |
-| `react` / `react-dom` | 19.2.4 | Latest React with concurrent features; used client components only where interactivity is needed |
-| `typescript` | ^5 | Strict type safety across the entire codebase — every API response, state shape, and component prop is typed |
+| Package               | Version | Why Used                                                                                                                                                |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `next`                | 16.2.2  | App Router with React Server Components, built-in routing for `/branch`, `/articles`, `/about` etc., and `next/font` for zero-layout-shift font loading |
+| `react` / `react-dom` | 19.2.4  | Latest React with concurrent features; used client components only where interactivity is needed                                                        |
+| `typescript`          | ^5      | Strict type safety across the entire codebase — every API response, state shape, and component prop is typed                                            |
 
 ### Data Fetching & Caching
 
-| Package | Version | Why Used |
-|---|---|---|
+| Package                 | Version | Why Used                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@tanstack/react-query` | ^5.96.1 | Chosen over plain `fetch` or SWR for its powerful caching (`staleTime`, `gcTime`), built-in `AbortSignal` support, and automatic background refetch control. Branch data is cached for **1 hour in memory** and **2 hours in garbage collection** — so navigating away and back never re-fetches. |
 
 ### Mapping
 
-| Package | Version | Why Used |
-|---|---|---|
+| Package              | Version | Why Used                                                                                                                                                                                            |
+| -------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `@types/google.maps` | ^3.58.1 | Type definitions for the Google Maps JavaScript API loaded via script tag. Used `AdvancedMarkerElement` (the modern Maps API) with fully custom HTML pins instead of the deprecated `Marker` class. |
 
 ### Animations & UI
 
-| Package | Version | Why Used |
-|---|---|---|
+| Package         | Version  | Why Used                                                                                                                                                                                                                                   |
+| --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `framer-motion` | ^12.38.0 | Used for page-enter animations, the search bar slide-in, branch card staggered appearance, and the `AnimatePresence`-powered detail panel exit animation. Chosen over CSS-only for its spring physics and mount/unmount lifecycle control. |
-| `lucide-react` | ^1.7.0 | Consistent, lightweight SVG icon set replacing all custom inline SVGs across the project. Tree-shakeable — only imported icons are bundled. |
+| `lucide-react`  | ^1.7.0   | Consistent, lightweight SVG icon set replacing all custom inline SVGs across the project. Tree-shakeable — only imported icons are bundled.                                                                                                |
 
 ### Styling
 
-| Package | Version | Why Used |
-|---|---|---|
-| `tailwindcss` | ^4 | Utility-first CSS with a custom `@theme` block defining the Brightstream brand tokens (`--color-midnight`, `--color-gold`, `--font-playfair`, etc.). Custom utilities like `.no-scrollbar` are declared with `@utility`. |
-| `@tailwindcss/postcss` | ^4 | Tailwind v4's modern PostCSS plugin — replaces the old `tailwind.config.js` approach entirely. |
+| Package                | Version | Why Used                                                                                                                                                                                                                 |
+| ---------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tailwindcss`          | ^4      | Utility-first CSS with a custom `@theme` block defining the Brightstream brand tokens (`--color-midnight`, `--color-gold`, `--font-playfair`, etc.). Custom utilities like `.no-scrollbar` are declared with `@utility`. |
+| `@tailwindcss/postcss` | ^4      | Tailwind v4's modern PostCSS plugin — replaces the old `tailwind.config.js` approach entirely.                                                                                                                           |
 
 ---
 
@@ -121,7 +119,7 @@
 
 - **Feature folders** (`branch-finder/`) group all components that exist for one single domain concern. If you delete the Branch Finder feature, you delete one folder — nothing else bleeds out.
 - **`ui/` for primitives** — generic reusable components that have no knowledge of "branches" live separately so they can be used on any page (articles, home, etc.) without coupling.
-- **`hooks/`** keeps all stateful React logic out of components entirely. Components receive data and dispatch events; they don't know *how* data is fetched or *how* state is stored.
+- **`hooks/`** keeps all stateful React logic out of components entirely. Components receive data and dispatch events; they don't know _how_ data is fetched or _how_ state is stored.
 - **`lib/`** contains zero React — it's pure TypeScript functions. This means they're easily testable, importable server-side, and have no accidental client-side dependencies.
 
 ---
@@ -167,33 +165,39 @@ const { state, setInput, applySearch, clearAll } = useBranchFinderState();
 The `lib/utils/` directory is split into **3 purpose-named files** instead of one giant `utils.ts`:
 
 ### `geo.ts` — Geography & Math only
+
 ```typescript
-parseCoordinates()   // "lat, lng" string → { lat, lng }
-haversineDistance()  // spherical earth distance formula
-formatDistance()     // 0.3 → "300 m", 12.5 → "12.5 km"
-calculateDistances() // applies haversine across entire branches array
+parseCoordinates(); // "lat, lng" string → { lat, lng }
+haversineDistance(); // spherical earth distance formula
+formatDistance(); // 0.3 → "300 m", 12.5 → "12.5 km"
+calculateDistances(); // applies haversine across entire branches array
 ```
+
 **Why separate?** These functions are pure math. They don't know about filters, sorting, or components. Isolating them makes them easy to test independently and easy to swap (e.g. replace Haversine with a faster algorithm later).
 
 ### `branch.ts` — Branch domain logic only
+
 ```typescript
-mapApiBranch()          // BranchApiItem (PascalCase) → Branch (camelCase)
-getProcessedBranches()  // filters + sorts a branch array
-getAvailableCountries() // unique sorted country list
-getAvailableCities()    // unique sorted city list
-getBranchStats()        // { total, countries } for the hero stats ribbon
+mapApiBranch(); // BranchApiItem (PascalCase) → Branch (camelCase)
+getProcessedBranches(); // filters + sorts a branch array
+getAvailableCountries(); // unique sorted country list
+getAvailableCities(); // unique sorted city list
+getBranchStats(); // { total, countries } for the hero stats ribbon
 ```
+
 **Why separate?** These functions know about the `Branch` type and business rules (what "US" filter means, how country sort works). They're the domain layer.
 
 ### `common.ts` — Generic utilities only
+
 ```typescript
-cn()                    // classNames helper (like clsx)
-debounce()              // generic debounce for any function
-getInfiniteScrollData() // pagination math for infinite scroll
+cn(); // classNames helper (like clsx)
+debounce(); // generic debounce for any function
+getInfiniteScrollData(); // pagination math for infinite scroll
 ```
+
 **Why separate?** These have zero knowledge of branches or geography. They're reusable across the entire project. `cn()` is used in `Card.tsx`, `FilterChips.tsx`, and beyond.
 
-**The rule:** A function lives in the file whose name describes *why it exists*, not *where it's used*.
+**The rule:** A function lives in the file whose name describes _why it exists_, not _where it's used_.
 
 ---
 
@@ -204,6 +208,7 @@ getInfiniteScrollData() // pagination math for infinite scroll
 ### The Problem with One Big Component
 
 If `BranchFinder.tsx` contained the SearchBar, the Map, the List, and the Cards all inline:
+
 - Every keypress in the search input would re-render the **entire tree** including the Google Map
 - The 1,000-branch list re-renders every time a card is selected
 - You can't reuse a "branch card" design elsewhere (e.g. a featured branch on the homepage)
@@ -221,10 +226,9 @@ BranchFinder.tsx          ← Parent: owns all state, computes derived data
         └── BranchCard.tsx  ← Dumb: renders 1 branch card, fires 1 callback
 ```
 
-**The key principle:** Each component only re-renders when *its own* props change. `BranchCard` doesn't care about the search query — it just gets a `branch` object and an `isActive` flag. Selecting a card doesn't re-render all other cards unnecessarily.
+**The key principle:** Each component only re-renders when _its own_ props change. `BranchCard` doesn't care about the search query — it just gets a `branch` object and an `isActive` flag. Selecting a card doesn't re-render all other cards unnecessarily.
 
 ---
-
 
 ## 💡 Key Architecture Decisions
 
@@ -241,14 +245,16 @@ This is the right choice because branch data changes infrequently (weekly at mos
 
 ```typescript
 // Step 1: Only runs when userLocation changes (expensive math)
-const branchesWithDistance = useMemo(() =>
-  calculateDistances(allBranches, location),
-[allBranches, location]);
+const branchesWithDistance = useMemo(
+  () => calculateDistances(allBranches, location),
+  [allBranches, location],
+);
 
 // Step 2: Only runs when filters/sort changes (cheap array ops)
-const displayBranches = useMemo(() =>
-  getProcessedBranches(branchesWithDistance, activeFilters, sort),
-[branchesWithDistance, activeFilters, sort]);
+const displayBranches = useMemo(
+  () => getProcessedBranches(branchesWithDistance, activeFilters, sort),
+  [branchesWithDistance, activeFilters, sort],
+);
 ```
 
 Typing in the search box only triggers Step 2. The Haversine formula for 1,000+ branches (Step 1) only re-runs if your GPS location changes.
@@ -275,7 +281,7 @@ const total = firstData.data.Branch.total;
 
 // Remaining pages fetched simultaneously — not sequentially
 const pagePromises = Array.from({ length: pageCount }, (_, i) =>
-  gqlFetch({ limit: 100, skip: (i + 1) * 100 })
+  gqlFetch({ limit: 100, skip: (i + 1) * 100 }),
 );
 const pages = await Promise.all(pagePromises); // All parallel
 ```
@@ -299,6 +305,7 @@ cp .env.example .env.local
 ```
 
 Edit `.env.local`:
+
 ```env
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 ```
@@ -326,10 +333,10 @@ npx tsc --noEmit # TypeScript type check (no output files)
 
 ## 📁 Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | ✅ Yes | Google Maps JavaScript API key with Maps & Marker APIs enabled |
+| Variable                                | Required | Description                                                    |
+| --------------------------------------- | -------- | -------------------------------------------------------------- |
+| `GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER` | ✅ Yes   | Google Maps JavaScript API key with Maps & Marker APIs enabled |
 
 ---
 
-*Developed as part of the Brightstream Bank task assignment.*
+_Developed as part of the Brightstream Bank task assignment._

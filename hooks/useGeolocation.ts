@@ -38,7 +38,7 @@ export function useGeolocation(): UseGeolocationReturn {
         setError(messages[err.code] ?? "Unable to determine your location.");
         setLoading(false);
       },
-      GEO_OPTIONS
+      GEO_OPTIONS,
     );
   }, []);
 

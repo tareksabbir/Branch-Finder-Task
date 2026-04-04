@@ -27,7 +27,7 @@ export function mapApiBranch(item: BranchApiItem, index: number): Branch {
 export function getProcessedBranches(
   branches: Branch[],
   filters: ActiveFilters,
-  sort: SortType
+  sort: SortType,
 ): Branch[] {
   let list = branches.slice(); // Copy to avoid mutating original
 
@@ -65,7 +65,7 @@ export function getProcessedBranches(
   } else if (sort === "country") {
     list.sort(
       (a, b) =>
-        a.country.localeCompare(b.country) || a.name.localeCompare(b.name)
+        a.country.localeCompare(b.country) || a.name.localeCompare(b.name),
     );
   }
 
@@ -83,7 +83,10 @@ export function getAvailableCities(branches: Branch[]): string[] {
 }
 
 /** Calculate summary stats for branches */
-export function getBranchStats(branches: Branch[]): { total: number; countries: number } {
+export function getBranchStats(branches: Branch[]): {
+  total: number;
+  countries: number;
+} {
   return {
     total: branches.length,
     countries: new Set(branches.map((b) => b.country)).size,

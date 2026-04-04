@@ -22,9 +22,9 @@ export function Badge({
   return (
     <span
       className={cn(
-        "text-[0.68rem] font-semibold px-2 py-[3px] rounded tracking-wide uppercase",
+        "text-[0.68rem] font-semibold px-2 py-0.75 rounded tracking-wide uppercase",
         variants[variant],
-        className
+        className,
       )}
     >
       {children}

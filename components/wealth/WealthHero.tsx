@@ -6,7 +6,7 @@ const WealthHero = () => {
   return (
     <section className="bg-linear-to-br from-midnight to-deep-teal text-center relative overflow-hidden cta-radial pt-52 pb-28">
       {/* Gradient overlay to keep text legible and preserve brand colors */}
-      <div className="absolute inset-0 bg-gradient-to-br from-deep-teal/85 via-midnight/70 to-deep-teal/80" />
+      <div className="absolute inset-0 bg-linear-to-br from-deep-teal/85 via-midnight/70 to-deep-teal/80" />
       {/* Subtle vignette for depth */}
       <div className="absolute inset-0 [background:radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.45)_100%)]" />
 

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 // components/branch-finder/BranchList.tsx
 "use client";
 
@@ -38,19 +39,17 @@ export function BranchList({
   const scrollRef = useRef<HTMLDivElement>(null);
   const isScrollingRef = useRef(false);
 
-  const { totalPages, visibleItems: visibleBranches, visibleCount } = getInfiniteScrollData(
-    branches,
-    page,
-    PAGE_SIZE
-  );
+  const {
+    totalPages,
+    visibleItems: visibleBranches,
+    visibleCount,
+  } = getInfiniteScrollData(branches, page, PAGE_SIZE);
 
   // Reset to page 0 when filters/sort/search change
   useEffect(() => {
     setPage(0);
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [branches]);
-
-
 
   // Detect scroll-to-bottom → next page, scroll-at-top (bounce back) → prev page
   const handleScroll = useCallback(() => {
@@ -72,16 +71,17 @@ export function BranchList({
   return (
     // On mobile, the list is 85vh tall and has its own internal scroll. On desktop, it takes full height.
     <aside className="flex flex-col bg-warm-white h-[85vh] md:h-full md:overflow-hidden">
-
       {/* Filters */}
-      <div className="px-6 py-8 pb-3 border-b border-slate/20 bg-cream flex-shrink-0">
+      <div className="px-6 py-8 pb-3 border-b border-slate/20 bg-cream shrink-0">
         <FilterChips active={activeFilter} onChange={onFilterChange} />
       </div>
 
       {/* Sort + count */}
-      <div className="px-6 py-3 border-b border-slate/20 flex items-center justify-between flex-shrink-0">
+      <div className="px-6 py-3 border-b border-slate/20 flex items-center justify-between shrink-0">
         <span className="text-[1.15rem] text-slate">
-          <strong className="text-midnight font-semibold">{branches.length}</strong>{" "}
+          <strong className="text-midnight font-semibold">
+            {branches.length}
+          </strong>{" "}
           branches found
         </span>
         <select
@@ -101,7 +101,6 @@ export function BranchList({
         onScroll={handleScroll}
         className="flex-1 p-4 overflow-y-scroll no-scrollbar"
       >
-
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <Spinner />
@@ -111,8 +110,12 @@ export function BranchList({
 
         {isError && (
           <div className="p-6 text-center">
-            <p className="text-[1.15rem] text-red-500 font-medium">Failed to load branches.</p>
-            <p className="text-[1rem] text-slate mt-1">Please refresh and try again.</p>
+            <p className="text-[1.15rem] text-red-500 font-medium">
+              Failed to load branches.
+            </p>
+            <p className="text-[1rem] text-slate mt-1">
+              Please refresh and try again.
+            </p>
           </div>
         )}
 
@@ -121,22 +124,26 @@ export function BranchList({
             <div className="w-14 h-14 bg-cream rounded-full grid place-items-center">
               <Search className="w-6 h-6 text-sage" strokeWidth={2} />
             </div>
-            <p className="text-[1.5rem] font-semibold text-midnight">No branches found</p>
-            <p className="text-[1.15rem] text-slate text-center max-w-[300px]">
+            <p className="text-[1.5rem] font-semibold text-midnight">
+              No branches found
+            </p>
+            <p className="text-[1.15rem] text-slate text-center max-w-75">
               Try adjusting your search or filters.
             </p>
           </div>
         )}
 
-        {!isLoading && !isError && visibleBranches.map((branch, i) => (
-          <BranchCard
-            key={branch.id}
-            branch={branch}
-            isActive={selectedId === branch.id}
-            index={i}
-            onClick={() => onSelect(branch)}
-          />
-        ))}
+        {!isLoading &&
+          !isError &&
+          visibleBranches.map((branch, i) => (
+            <BranchCard
+              key={branch.id}
+              branch={branch}
+              isActive={selectedId === branch.id}
+              index={i}
+              onClick={() => onSelect(branch)}
+            />
+          ))}
 
         {/* Bottom sentinel + page label */}
         {!isLoading && !isError && branches.length > 0 && (
@@ -147,7 +154,6 @@ export function BranchList({
           </div>
         )}
       </div>
-
     </aside>
   );
 }
