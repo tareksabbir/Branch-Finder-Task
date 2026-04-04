@@ -219,7 +219,7 @@ const Navbar = ({ variant = "transparent" }: NavbarProps) => {
                         : "bg-gold text-midnight hover:bg-warm-white"
                     }`}
                   >
-                    Get Started
+                    Find our Branch
                   </Link>
                 </motion.div>
               </div>
