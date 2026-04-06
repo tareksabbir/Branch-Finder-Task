@@ -29,20 +29,6 @@
 
 ---
 
-## ✨ Recent Updates (April 2026)
-
-We've recently enhanced the Branch Finder with several performance and UX improvements:
-
-- **Instant Auto-Search**: Removed the manual "Search" button. Results now update automatically as you type, providing a zero-latency experience.
-- **Refined UI & Styles**: 
-  - Updated the **Consent Banner** with a modern, non-intrusive design and improved mobile responsiveness.
-  - Standardized button variants (e.g., using `midnight` for primary actions like "Near me").
-  - Smoother loading states with dedicated `BranchListStatus` indicators.
-- **Improved Global State**: Refactored `useBranchFinderState` for more robust filter handling and cleaner state transitions.
-- **Developer Experience**: Added environment variable support for the GraphQL endpoint (`NEXT_PUBLIC_GQL_ENDPOINT`) to support staging and production environments seamlessly.
-
----
-
 ## 🛠️ Tech Stack & Why Each Tool Was Chosen
 
 ### Core Framework
@@ -261,7 +247,7 @@ BranchFinder.tsx          ← Parent: owns all state, computes derived data
 The Optimizely Graph API is queried once on page load. All 1,000+ branches are fetched (using paginated `Promise.all`), normalized, and handed to TanStack Query which caches them for 1 hour.
 
 **Trade-off:** ~1–2MB initial network transfer  
-**Benefit:** Every search, filter, and sort after that is **0ms** — no loading spinners, no debounced API requests, no server round-trips
+**Benefit:** Every search, filter, and sort after that is **0ms** — no loading spinners, no debounced API requests, no server round-trips. This enables **instant auto-search** where results update in real-time as the user types, without the need for a manual 'Search' button.
 
 This is the right choice because branch data changes infrequently (weekly at most) and the dataset fits comfortably in browser memory.
 
@@ -328,7 +314,7 @@ To ensure a seamless and privacy-respecting user experience, we implemented a cu
 
 - **Custom Cookie Utility**: We built a lightweight cookie manager (`lib/utils/cookie.ts`) to handle persistent storage without external dependencies.
 - **Smart Logic**:
-    - **Initial Visit**: An animated consent banner (`ConsentBanner.tsx`) appears.
+    - **Initial Visit**: A modern, animated consent banner (`ConsentBanner.tsx`) appears at the bottom of the screen.
     - **"Allow"**: Sets a cookie (`branch_finder_consent=allowed`) for **1 year** and triggers the location request.
     - **"Later"**: Sets a cookie (`declined`) for **30 days** to suppress the banner without disabling the feature manually.
     - **Returning Users**: If the cookie is `allowed`, `BranchFinder.tsx` automatically fetches the user's location on mount, providing an instant "Near Me" experience.
@@ -353,6 +339,8 @@ Edit `.env.local`:
 
 ```env
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+# Optional: Override the default GraphQL endpoint
+# NEXT_PUBLIC_GQL_ENDPOINT=https://your-custom-endpoint.com
 ```
 
 ```bash
