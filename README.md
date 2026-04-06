@@ -53,7 +53,7 @@
 | 🗺️ **Interactive Map** | Google Maps integration using modern `AdvancedMarkerElement` with fully custom, brand-aligned HTML pins |
 | 🔄 **Parallel Data Loading** | High-speed GraphQL pagination — fetches all data simultaneously using concurrent `Promise.all` requests |
 | 🖱️ **Infinite Scroll** | Custom `IntersectionObserver`-based list rendering for silky-smooth performance on large datasets |
-| 🍪 **Location Persistence** | Smart consent system with lightweight cookie storage — returning users skip permission prompts entirely |
+| 🍪 **Location Persistence** | Smart consent system with highly resilient Cookie + LocalStorage hybrid storage — returning users skip permission prompts entirely |
 | 🎨 **Premium Animations** | Framer Motion powered page transitions, staggered card reveals, and spring-physics detail panels |
 | 🔁 **Retry & Resilience** | Exponential backoff retry logic with `AbortSignal` support on all GraphQL requests |
 
@@ -393,7 +393,8 @@ A custom, non-intrusive location consent flow built to handle common mobile brow
 ### Technical Implementation
 
 ```typescript
-// lib/utils/cookie.ts — zero-dependency preference storage
+// lib/utils/cookie.ts — Hybrid Cookie + LocalStorage preference storage
+// Uses localStorage as a bulletproof fallback if browsers block strict cookies locally
 setCookie("branch_finder_consent", "allowed", 365);
 getCookie("branch_finder_consent"); // → "allowed" | "denied" | null
 
