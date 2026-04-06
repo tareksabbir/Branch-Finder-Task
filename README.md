@@ -49,6 +49,7 @@
 |---|---|
 | ⚡ **Zero-Latency Search** | Intelligent client-side filtering of 1,000+ records — results update instantly as you type with 0ms network delay |
 | 📍 **GPS Proximity Sorting** | Real-time distance calculation using the Haversine formula to rank and display the closest branches |
+| 🔗 **Smart Linked Filtering** | Country and City dropdowns are bidirectionally linked — selecting one automatically updates the other for an intuitive search flow |
 | 🗺️ **Interactive Map** | Google Maps integration using modern `AdvancedMarkerElement` with fully custom, brand-aligned HTML pins |
 | 🔄 **Parallel Data Loading** | High-speed GraphQL pagination — fetches all data simultaneously using concurrent `Promise.all` requests |
 | 🖱️ **Infinite Scroll** | Custom `IntersectionObserver`-based list rendering for silky-smooth performance on large datasets |
@@ -360,6 +361,7 @@ mapApiBranch()          // BranchApiItem (PascalCase) → Branch (camelCase)
 getProcessedBranches()  // Applies filters + sort to a branch array
 getAvailableCountries() // Returns unique, sorted country list
 getAvailableCities()    // Returns unique, sorted city list
+getCityCountryMap()     // Builds bidirectional Map<city, country> and Map<country, city[]>
 getBranchStats()        // { total, countries } for the hero stats ribbon
 ```
 
@@ -369,7 +371,6 @@ These functions know about the `Branch` type and business rules. They form the d
 
 ```typescript
 cn()                    // classNames helper (like clsx)
-debounce()              // Generic debounce for any function
 getInfiniteScrollData() // Pagination math for the infinite scroll chunker
 ```
 
