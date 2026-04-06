@@ -13,7 +13,7 @@ export function setCookie(name: string, value: string, days: number) {
   if (typeof window !== "undefined" && window.localStorage) {
     try {
       localStorage.setItem(name, value);
-    } catch (e) {
+    } catch {
       // Ignore quota errors
     }
   }
@@ -37,7 +37,7 @@ export function getCookie(name: string): string | null {
   if (typeof window !== "undefined" && window.localStorage) {
     try {
       return localStorage.getItem(name);
-    } catch (e) {
+    } catch {
       return null;
     }
   }

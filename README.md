@@ -52,7 +52,7 @@
 | 🔗 **Smart Linked Filtering** | Country and City dropdowns are bidirectionally linked — selecting one automatically updates the other for an intuitive search flow |
 | 🗺️ **Interactive Map** | Google Maps integration using modern `AdvancedMarkerElement` with fully custom, brand-aligned HTML pins |
 | 🔄 **Parallel Data Loading** | High-speed GraphQL pagination — fetches all data simultaneously using concurrent `Promise.all` requests |
-| 🖱️ **Infinite Scroll** | Custom `IntersectionObserver`-based list rendering for silky-smooth performance on large datasets |
+| 🖱️ **Virtualized List** | Uses `@tanstack/react-virtual` for intelligent windowed rendering, ensuring silky-smooth performance and low DOM overhead on large datasets |
 | 🍪 **Location Persistence** | Smart consent system with highly resilient Cookie + LocalStorage hybrid storage — returning users skip permission prompts entirely |
 | 🎨 **Premium Animations** | Framer Motion powered page transitions, staggered card reveals, and spring-physics detail panels |
 | 🔁 **Retry & Resilience** | Exponential backoff retry logic with `AbortSignal` support on all GraphQL requests |
@@ -220,13 +220,15 @@ const pages = await Promise.all(pageRequests);
 
 ---
 
-### 3. Infinite Scroll via IntersectionObserver
+### 3. High-Performance Virtualized List Rendering
 
-Rendering 1,000+ DOM nodes simultaneously would freeze any device. `BranchList.tsx` implements a virtualization-lite approach:
+Rendering 1,000+ DOM nodes simultaneously would freeze any device. Previously, this was solved via an infinite scrolling chunker, but it still meant the DOM node count strictly grew as the user scrolled.
 
-- A native `IntersectionObserver` watches a sentinel element at the bottom of the list
-- As the user scrolls, branches are revealed in **chunks of 10**
-- The result is a fluid, high-FPS experience even on low-end mobile devices
+`BranchList.tsx` instead utilizes `@tanstack/react-virtual` for true "**windowed rendering**":
+
+- Only the specific branch cards that are currently visible on the user's screen are actually rendered into the HTML DOM.
+- As the user scrolls, cards that leave the viewport are instantly unmounted, freeing up memory.
+- **Why this was chosen:** It guarantees an absolute <math>O(1)</math> memory architecture. The browser only ever paints a fixed amount of HTML regardless of whether the user scrolls through 10 or 1,000 locations, eliminating scroll-jank and preventing memory crashes on low-end mobile devices.
 
 ---
 
@@ -322,7 +324,7 @@ BranchFinder.tsx           ← Parent: owns all state, performs data mapping
   │     └── BranchStatsRibbon.tsx
   ├── MapView.tsx           ← Lifecycle Isolation: Google Maps managed separately from list
   │     └── BranchDetailPanel.tsx
-  ├── BranchList.tsx        ← Iteration Isolation: owns scroll state and chunk pagination
+  ├── BranchList.tsx        ← Iteration Isolation: owns scroll state and DOM Virtualization
   │     ├── BranchListHeader.tsx
   │     ├── BranchListStatus.tsx
   │     └── BranchCard.tsx  ← Leaf: wrapped in React.memo, re-renders only on prop changes
@@ -473,7 +475,7 @@ npx tsc --noEmit   # Run TypeScript type checking without emitting output files
 | **Prop Stability** | `useCallback` + `React.memo` prevent cascading re-renders on large lists |
 | **Data Locality** | Feature-specific components, hooks, and utils are co-located |
 | **Immutable State** | `useReducer` ensures all state transitions are explicit, predictable, and atomic |
-| **Performance by Default** | `useMemo`, `IntersectionObserver`, and marker capping prevent expensive operations from blocking the main thread |
+| **Performance by Default** | `useMemo`, DOM Virtualization (`react-virtual`), and marker capping prevent expensive operations from blocking the main thread |
 
 ---
 

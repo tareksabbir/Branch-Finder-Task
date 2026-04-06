@@ -1,13 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useRef, useEffect } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { Branch, FilterType, SortType } from "@/lib/types";
-import { getInfiniteScrollData } from "@/lib/utils/common";
 import { BranchCard } from "./BranchCard";
 import { BranchListHeader } from "./BranchListHeader";
 import { BranchListStatus } from "./BranchListStatus";
-
-const PAGE_SIZE = 10;
 
 interface BranchListProps {
   branches: Branch[];
@@ -32,56 +30,22 @@ export function BranchList({
   onSortChange,
   onSelect,
 }: BranchListProps) {
-  const [page, setPage] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const {
-    totalPages,
-    visibleItems: visibleBranches,
-    visibleCount,
-  } = getInfiniteScrollData(branches, page, PAGE_SIZE);
-
-  // Use refs so the IntersectionObserver callback always has fresh values
-  // without needing to be recreated on every page/totalPages change
-  const pageRef = useRef(page);
-  const totalPagesRef = useRef(totalPages);
-  pageRef.current = page;
-  totalPagesRef.current = totalPages;
-
-  const [prevBranches, setPrevBranches] = useState(branches);
-  if (branches !== prevBranches) {
-    setPrevBranches(branches);
-    setPage(0);
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const rowVirtualizer = useVirtualizer({
+    count: branches.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 160, 
+    overscan: 5,
+  });
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [branches]);
-
-  // Stable callback for the observer — reads from refs, never stale
-  const handleIntersect = useCallback((entries: IntersectionObserverEntry[]) => {
-    if (entries[0].isIntersecting && pageRef.current < totalPagesRef.current - 1) {
-      setPage((p) => p + 1);
-    }
-  }, []);
-
-  // Infinite Scroll via IntersectionObserver — created only once
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleIntersect, {
-      threshold: 0.1,
-      root: scrollRef.current,
-    });
-
-    const currentSentinel = sentinelRef.current;
-    if (currentSentinel) observer.observe(currentSentinel);
-    return () => {
-      if (currentSentinel) observer.unobserve(currentSentinel);
-    };
-  }, [handleIntersect]);
+    rowVirtualizer.measure();
+  }, [branches, rowVirtualizer]);
 
   return (
-    // On mobile, the list is 85vh tall and has its own internal scroll. On desktop, it takes full height.
     <aside className="flex flex-col bg-warm-white h-[85vh] md:h-full md:overflow-hidden">
       <BranchListHeader
         branchesCount={branches.length}
@@ -91,10 +55,9 @@ export function BranchList({
         onSortChange={onSortChange}
       />
 
-      {/* Cards — native scroll, scrollbar hidden */}
       <div
         ref={scrollRef}
-        className="flex-1 p-4 overflow-y-scroll no-scrollbar"
+        className="flex-1 p-4 overflow-y-auto overflow-x-hidden no-scrollbar"
       >
         <BranchListStatus
           isLoading={isLoading}
@@ -102,23 +65,46 @@ export function BranchList({
           isEmpty={!isLoading && !isError && branches.length === 0}
         />
 
-        {!isLoading &&
-          !isError &&
-          visibleBranches.map((branch, i) => (
-            <BranchCard
-              key={branch.id}
-              branch={branch}
-              isActive={selectedId === branch.id}
-              index={i}
-              onSelect={onSelect}
-            />
-          ))}
-
-        {/* Bottom sentinel + page label */}
         {!isLoading && !isError && branches.length > 0 && (
-          <div ref={sentinelRef} className="py-3 text-center">
+          <div
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              width: "100%",
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              const branch = branches[virtualItem.index];
+              return (
+                <div
+                  key={virtualItem.key}
+                  data-index={virtualItem.index}
+                  ref={rowVirtualizer.measureElement}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    transform: `translateY(${virtualItem.start}px)`,
+                    paddingBottom: "16px",
+                  }}
+                >
+                  <BranchCard
+                    branch={branch}
+                    isActive={selectedId === branch.id}
+                    index={virtualItem.index}
+                    onSelect={onSelect}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {!isLoading && !isError && branches.length > 0 && (
+          <div className="py-3 mt-4 text-center">
             <span className="text-[0.78rem] text-slate/40">
-              Showing {visibleCount} of {branches.length.toLocaleString()}
+              Showing {branches.length.toLocaleString()} locations
             </span>
           </div>
         )}
