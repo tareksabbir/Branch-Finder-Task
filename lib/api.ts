@@ -4,6 +4,9 @@ const GQL_ENDPOINT =
   process.env.NEXT_PUBLIC_GQL_ENDPOINT ??
   "https://cg.optimizely.com/content/v2?auth=iQEyR1jR1cBG5mnLQoRotCyNmKUgaO0DT5cRbJPKA3oZGGQo";
 
+// Note: Retries are handled by TanStack Query (retry: 2 in providers.tsx).
+// Do NOT add retry logic here to avoid compounding retries.
+
 const BRANCH_QUERY = `
   query GetBranches($limit: Int, $skip: Int) {
     Branch(limit: $limit, skip: $skip) {
@@ -25,26 +28,19 @@ const BRANCH_QUERY = `
 
 // Optimizely Graph max limit per request is 100
 const PAGE_SIZE = 100;
-const MAX_RETRIES = 2;
 
 async function gqlFetch(
   variables: { limit: number; skip: number },
   signal?: AbortSignal,
-  attempt = 0,
 ): Promise<BranchApiResponse> {
   const res = await fetch(GQL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: BRANCH_QUERY, variables }),
     signal,
-    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
-    if (attempt < MAX_RETRIES) {
-      await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
-      return gqlFetch(variables, signal, attempt + 1);
-    }
     throw new Error(`GraphQL request failed: ${res.status} ${res.statusText}`);
   }
 

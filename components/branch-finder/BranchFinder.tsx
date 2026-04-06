@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useCallback } from "react";
 import { useBranches } from "@/hooks/useBranches";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useBranchFinderState } from "@/hooks/useBranchFinderState";
@@ -8,6 +8,7 @@ import {
   getProcessedBranches,
   getAvailableCountries,
   getAvailableCities,
+  getCityCountryMap,
   getBranchStats,
 } from "@/lib/utils/branch";
 import { calculateDistances } from "@/lib/utils/geo";
@@ -18,7 +19,7 @@ import { BranchList } from "./BranchList";
 import { ConsentBanner } from "./ConsentBanner";
 
 const GOOGLE_MAPS_API_KEY =
-  process.env.GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER ??
+  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ??
   "AIzaSyBiGTrQuVps6dXhd3tPkLqoa0N54az4HZI";
 // INTENTIONALLY PUT THAT KEY HERE FOR EVALUATION PURPOSE
 
@@ -40,18 +41,66 @@ export function BranchFinder() {
   } = useBranchFinderState();
 
   // Derived Data
-  const availableCountries = useMemo(() => {
+  const allCountries = useMemo(() => {
     return getAvailableCountries(allBranches);
   }, [allBranches]);
 
-  const availableCities = useMemo(() => {
+  const allCities = useMemo(() => {
     return getAvailableCities(allBranches);
   }, [allBranches]);
 
-  const handleLocate = () => {
+  // Build city ↔ country bidirectional map
+  const cityCountryMap = useMemo(() => {
+    return getCityCountryMap(allBranches);
+  }, [allBranches]);
+
+  // Smart filtered lists: when a country is selected, only show its cities
+  // When no country is selected, show all cities
+  const availableCities = useMemo(() => {
+    const selectedCountry = state.inputs.country;
+    if (selectedCountry) {
+      return cityCountryMap.countryToCities.get(selectedCountry) ?? [];
+    }
+    return allCities;
+  }, [state.inputs.country, cityCountryMap, allCities]);
+
+  // Countries list stays full (so user can always pick any country)
+  const availableCountries = allCountries;
+
+  // When user picks a CITY → auto-select the country it belongs to
+  const handleCityChange = useCallback(
+    (val: string) => {
+      setInput("city", val);
+      if (val) {
+        const mappedCountry = cityCountryMap.cityToCountry.get(val);
+        if (mappedCountry) {
+          setInput("country", mappedCountry);
+        }
+      }
+    },
+    [setInput, cityCountryMap],
+  );
+
+  // When user picks a COUNTRY → clear city if it doesn't belong to that country
+  const handleCountryChange = useCallback(
+    (val: string) => {
+      setInput("country", val);
+      if (val) {
+        const countryCities = cityCountryMap.countryToCities.get(val);
+        const currentCity = state.inputs.city;
+        // If current city doesn't belong to the newly selected country, clear it
+        if (currentCity && (!countryCities || !countryCities.includes(currentCity))) {
+          setInput("city", "");
+        }
+      }
+    },
+    [setInput, cityCountryMap, state.inputs.city],
+  );
+
+  const handleLocate = useCallback(() => {
     getLocation();
     setSort("distance");
-  };
+  }, [getLocation, setSort]);
 
   // Auto-locate if previously allowed via Consent Banner (Cookie based)
   useEffect(() => {
@@ -59,8 +108,7 @@ export function BranchFinder() {
     if (consent === "allowed") {
       handleLocate();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [handleLocate]);
 
   // Debounce search when inputs change
   useEffect(() => {
@@ -103,10 +151,10 @@ export function BranchFinder() {
         branchName={state.inputs.branchName}
         onBranchNameChange={(val) => setInput("branchName", val)}
         city={state.inputs.city}
-        onCityChange={(val) => setInput("city", val)}
+        onCityChange={handleCityChange}
         availableCities={availableCities}
         country={state.inputs.country}
-        onCountryChange={(val) => setInput("country", val)}
+        onCountryChange={handleCountryChange}
         zipCode={state.inputs.zipCode}
         onZipCodeChange={(val) => setInput("zipCode", val)}
         availableCountries={availableCountries}

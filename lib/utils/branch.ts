@@ -43,7 +43,8 @@ export function getProcessedBranches(
   }
 
   if (filters.country) {
-    list = list.filter((b) => b.country === filters.country);
+    const query = filters.country.toLowerCase();
+    list = list.filter((b) => b.country.toLowerCase() === query);
   }
 
   if (filters.zipCode) {
@@ -80,6 +81,38 @@ export function getAvailableCountries(branches: Branch[]): string[] {
 /** Get a unique sorted list of available cities from branches */
 export function getAvailableCities(branches: Branch[]): string[] {
   return Array.from(new Set(branches.map((b) => b.city))).sort();
+}
+
+/**
+ * Build a bidirectional city ↔ country mapping from branches.
+ * - cityToCountry: Map<city, country>  (each city belongs to one country)
+ * - countryToCities: Map<country, city[]>  (each country has many cities)
+ */
+export function getCityCountryMap(branches: Branch[]): {
+  cityToCountry: Map<string, string>;
+  countryToCities: Map<string, string[]>;
+} {
+  const cityToCountry = new Map<string, string>();
+  const countryToCitiesSet = new Map<string, Set<string>>();
+
+  for (const b of branches) {
+    if (!b.city || !b.country) continue;
+
+    cityToCountry.set(b.city, b.country);
+
+    if (!countryToCitiesSet.has(b.country)) {
+      countryToCitiesSet.set(b.country, new Set());
+    }
+    countryToCitiesSet.get(b.country)!.add(b.city);
+  }
+
+  // Convert sets to sorted arrays
+  const countryToCities = new Map<string, string[]>();
+  for (const [country, cities] of countryToCitiesSet) {
+    countryToCities.set(country, Array.from(cities).sort());
+  }
+
+  return { cityToCountry, countryToCities };
 }
 
 /** Calculate summary stats for branches */

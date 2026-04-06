@@ -3,17 +3,7 @@ export function cn(...classes: (string | undefined | false | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
-/** Debounce utility */
-export function debounce<T extends (...args: Parameters<T>) => void>(
-  fn: T,
-  delay: number,
-): (...args: Parameters<T>) => void {
-  let timer: ReturnType<typeof setTimeout>;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-}
+
 
 /**
  * Calculate infinite scroll pagination data

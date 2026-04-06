@@ -59,29 +59,6 @@ export function SearchBar({
 
       <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
 
-      {/* City Select */}
-      <div className="w-full lg:w-37.5 flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
-        <MapPin
-          className="text-slate/50 shrink-0 w-5 h-5 mr-3 lg:hidden"
-          strokeWidth={2}
-        />
-        <select
-          value={city}
-          onChange={(e) => onCityChange(e.target.value)}
-          className="w-full bg-transparent outline-none text-[1.05rem] text-midnight font-medium appearance-none cursor-pointer pr-6"
-        >
-          <option value="">Select City</option>
-          {availableCities.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="w-4 h-4 absolute right-4 lg:right-0 text-slate pointer-events-none" />
-      </div>
-
-      <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
-
       {/* Country Select */}
       <div className="w-full lg:w-47.5 flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
         <MapPin
@@ -95,6 +72,29 @@ export function SearchBar({
         >
           <option value="">Select Country</option>
           {availableCountries.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="w-4 h-4 absolute right-4 lg:right-0 text-slate pointer-events-none" />
+      </div>
+
+      <div className="hidden lg:block w-px h-10 bg-slate/20 mx-3 shrink-0" />
+
+      {/* City Select */}
+      <div className="w-full lg:w-37.5 flex items-center relative bg-white lg:bg-transparent rounded-xl lg:rounded-none px-4 py-2.5 lg:p-0 border lg:border-none border-slate/20">
+        <MapPin
+          className="text-slate/50 shrink-0 w-5 h-5 mr-3 lg:hidden"
+          strokeWidth={2}
+        />
+        <select
+          value={city}
+          onChange={(e) => onCityChange(e.target.value)}
+          className="w-full bg-transparent outline-none text-[1.05rem] text-midnight font-medium appearance-none cursor-pointer pr-6"
+        >
+          <option value="">Select City</option>
+          {availableCities.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>

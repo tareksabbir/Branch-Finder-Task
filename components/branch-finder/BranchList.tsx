@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Branch, FilterType, SortType } from "@/lib/types";
 import { getInfiniteScrollData } from "@/lib/utils/common";
 import { BranchCard } from "./BranchCard";
@@ -41,6 +41,13 @@ export function BranchList({
     visibleCount,
   } = getInfiniteScrollData(branches, page, PAGE_SIZE);
 
+  // Use refs so the IntersectionObserver callback always has fresh values
+  // without needing to be recreated on every page/totalPages change
+  const pageRef = useRef(page);
+  const totalPagesRef = useRef(totalPages);
+  pageRef.current = page;
+  totalPagesRef.current = totalPages;
+
   const [prevBranches, setPrevBranches] = useState(branches);
   if (branches !== prevBranches) {
     setPrevBranches(branches);
@@ -51,24 +58,27 @@ export function BranchList({
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [branches]);
 
-  // Infinite Scroll via IntersectionObserver
+  // Stable callback for the observer — reads from refs, never stale
+  const handleIntersect = useCallback((entries: IntersectionObserverEntry[]) => {
+    if (entries[0].isIntersecting && pageRef.current < totalPagesRef.current - 1) {
+      setPage((p) => p + 1);
+    }
+  }, []);
+
+  // Infinite Scroll via IntersectionObserver — created only once
   const sentinelRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && page < totalPages - 1) {
-          setPage((p) => p + 1);
-        }
-      },
-      { threshold: 0.1, root: scrollRef.current },
-    );
+    const observer = new IntersectionObserver(handleIntersect, {
+      threshold: 0.1,
+      root: scrollRef.current,
+    });
 
     const currentSentinel = sentinelRef.current;
     if (currentSentinel) observer.observe(currentSentinel);
     return () => {
       if (currentSentinel) observer.unobserve(currentSentinel);
     };
-  }, [page, totalPages]);
+  }, [handleIntersect]);
 
   return (
     // On mobile, the list is 85vh tall and has its own internal scroll. On desktop, it takes full height.

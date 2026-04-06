@@ -83,7 +83,7 @@ export function ConsentBanner({ onAllow }: ConsentBannerProps) {
 
               {/* Close Button */}
               <button
-                onClick={() => setIsVisible(false)}
+                onClick={handleDecline}
                 className="absolute top-4 right-4 md:static p-1 text-stone-300 hover:text-stone-900 transition-colors"
                 aria-label="Close"
               >
