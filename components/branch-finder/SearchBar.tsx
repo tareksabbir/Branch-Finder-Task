@@ -136,16 +136,12 @@ export function SearchBar({
         <Button
           onClick={onLocate}
           disabled={locating}
-          variant="secondary"
+          variant="primary"
           size="md"
-          className="bg-gold/15 hover:bg-gold/20 flex-1 lg:flex-none"
-          title="Near Me"
-          leftIcon={
-            !locating && <LocateFixed className="w-4 h-4" strokeWidth={2.5} />
-          }
+          className="flex-1 lg:flex-none whitespace-nowrap"
           isLoading={locating}
         >
-          <span className="lg:hidden xl:inline">Near me</span>
+          Near me
         </Button>
 
         <Button

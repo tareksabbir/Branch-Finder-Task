@@ -1,8 +1,6 @@
-// hooks/useGeolocation.ts
-"use client";
-
 import { useState, useCallback } from "react";
 import { GeoLocation, UseGeolocationReturn } from "@/lib/types";
+import { setCookie } from "@/lib/utils/cookie";
 
 const GEO_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
@@ -28,6 +26,8 @@ export function useGeolocation(): UseGeolocationReturn {
       (pos) => {
         setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLoading(false);
+        // If they manually trigger this via SearchBar, also treat it as consent
+        setCookie("branch_finder_consent", "allowed", 365);
       },
       (err) => {
         const messages: Record<number, string> = {

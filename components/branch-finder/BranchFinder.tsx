@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useBranches } from "@/hooks/useBranches";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { SearchBar } from "./SearchBar";
 import { BranchList } from "./BranchList";
 import { MapView } from "./MapView";
+import { ConsentBanner } from "./ConsentBanner";
 import { useBranchFinderState } from "@/hooks/useBranchFinderState";
 import {
   getProcessedBranches,
@@ -15,6 +16,7 @@ import {
   getBranchStats,
 } from "@/lib/utils/branch";
 import { calculateDistances } from "@/lib/utils/geo";
+import { getCookie } from "@/lib/utils/cookie";
 
 const GOOGLE_MAPS_API_KEY =
   process.env.GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER ??
@@ -52,6 +54,15 @@ export function BranchFinder() {
     getLocation();
     setSortDistance();
   };
+
+  // Auto-locate if previously allowed via Consent Banner (Cookie based)
+  useEffect(() => {
+    const consent = getCookie("branch_finder_consent");
+    if (consent === "allowed") {
+      handleLocate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Calculate distance only when location or branches change
   const branchesWithDistance = useMemo(() => {
@@ -192,6 +203,9 @@ export function BranchFinder() {
           />
         </div>
       </div>
+      
+      {/* Consent Banner for Location & Cookies */}
+      <ConsentBanner onAllow={handleLocate} />
     </div>
   );
 }

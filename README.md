@@ -295,6 +295,27 @@ If there are 1,200 branches: 1 scout request + 11 parallel requests = **12 total
 
 ---
 
+## 📍 Location Consent & Persistence
+
+To ensure a seamless and privacy-respecting user experience, we implemented a custom **Location Consent System** that works reliably across both mobile and desktop browsers.
+
+### Why This Was Built
+
+1.  **Mobile Reliability**: Mobile browsers often require a clear user gesture (like a button click) to reliably trigger the native geolocation prompt. A custom banner provides this gesture.
+2.  **User Context**: Before asking for GPS coordinates, the banner explains *why* the information is needed (to show nearest branches).
+3.  **Persistence**: Browsers typically ask for permission on every session. Our system remembers the user's choice.
+
+### Technical Implementation
+
+- **Custom Cookie Utility**: We built a lightweight cookie manager (`lib/utils/cookie.ts`) to handle persistent storage without external dependencies.
+- **Smart Logic**:
+    - **Initial Visit**: An animated consent banner (`ConsentBanner.tsx`) appears.
+    - **"Allow"**: Sets a cookie (`branch_finder_consent=allowed`) for **1 year** and triggers the location request.
+    - **"Later"**: Sets a cookie (`declined`) for **30 days** to suppress the banner without disabling the feature manually.
+    - **Returning Users**: If the cookie is `allowed`, `BranchFinder.tsx` automatically fetches the user's location on mount, providing an instant "Near Me" experience.
+
+---
+
 ## 🚀 Local Setup
 
 ```bash
