@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Branch } from "@/lib/types";
 import { formatDistance } from "@/lib/utils/geo";
@@ -6,20 +7,24 @@ interface BranchCardProps {
   branch: Branch;
   isActive: boolean;
   index: number;
-  onClick: () => void;
+  onSelect: (branch: Branch) => void;
 }
 
-export function BranchCard({
+export const BranchCard = memo(function BranchCard({
   branch,
   isActive,
   index,
-  onClick,
+  onSelect,
 }: BranchCardProps) {
+  const handleClick = useCallback(() => {
+    onSelect(branch);
+  }, [branch, onSelect]);
+
   return (
     <Card
       variant="interactive"
       active={isActive}
-      onClick={onClick}
+      onClick={handleClick}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.4) }}
@@ -65,4 +70,4 @@ export function BranchCard({
       </CardContent>
     </Card>
   );
-}
+});

@@ -100,7 +100,7 @@ export function BranchList({
               branch={branch}
               isActive={selectedId === branch.id}
               index={i}
-              onClick={() => onSelect(branch)}
+              onSelect={onSelect}
             />
           ))}
 
