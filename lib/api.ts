@@ -1,6 +1,7 @@
 import { BranchApiItem, BranchApiResponse } from "./types";
 
 const GQL_ENDPOINT =
+  process.env.NEXT_PUBLIC_GQL_ENDPOINT ??
   "https://cg.optimizely.com/content/v2?auth=iQEyR1jR1cBG5mnLQoRotCyNmKUgaO0DT5cRbJPKA3oZGGQo";
 
 const BRANCH_QUERY = `

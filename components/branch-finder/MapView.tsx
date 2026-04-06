@@ -4,6 +4,11 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Branch, GeoLocation } from "@/lib/types";
 import { BranchDetailPanel } from "./BranchDetailPanel";
+import { createBranchPin, createUserPin } from "@/lib/utils/map";
+
+// Define local types for better readability even if using 'any' for the library
+type GoogleMap = any;
+type AdvancedMarker = any;
 
 declare global {
   interface Window {
@@ -21,35 +26,6 @@ interface MapViewProps {
   apiKey: string;
 }
 
-function createBranchPin(isSelected: boolean): HTMLElement {
-  const pin = document.createElement("div");
-  pin.style.cssText = `
-    width: ${isSelected ? "36px" : "28px"};
-    height: ${isSelected ? "36px" : "28px"};
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    background: ${isSelected ? "#C9A84C" : "#0B1F3A"};
-    border: 2.5px solid #ffffff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    transition: transform 0.15s ease, width 0.15s ease, height 0.15s ease;
-    cursor: pointer;
-  `;
-  return pin;
-}
-
-function createUserPin(): HTMLElement {
-  const outer = document.createElement("div");
-  outer.style.cssText = `
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #C9A84C;
-    border: 2.5px solid #ffffff;
-    box-shadow: 0 0 0 4px rgba(201,168,76,0.25);
-  `;
-  return outer;
-}
-
 export function MapView({
   branches,
   selectedBranch,
@@ -59,9 +35,9 @@ export function MapView({
   apiKey,
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markersRef = useRef<Map<string, any>>(new Map());
-  const userMarkerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<GoogleMap>(null);
+  const markersRef = useRef<Map<string, AdvancedMarker>>(new Map());
+  const userMarkerRef = useRef<AdvancedMarker>(null);
   const isLoadedRef = useRef(false);
   const prevSelectedIdRef = useRef<string | null>(null);
 
@@ -70,11 +46,13 @@ export function MapView({
 
     const { AdvancedMarkerElement } = window.google.maps.marker;
 
+    // Clear existing markers
     markersRef.current.forEach((m) => {
       m.map = null;
     });
     markersRef.current.clear();
 
+    // Render new markers
     branches.forEach((branch) => {
       if (!branch.lat || !branch.lng) return;
 
@@ -124,6 +102,7 @@ export function MapView({
     return () => observer.disconnect();
   }, [renderMarkers]);
 
+  // Handle Google Maps Script loading
   useEffect(() => {
     if (window.google?.maps?.marker) {
       initMap();
@@ -149,6 +128,7 @@ export function MapView({
     };
   }, [apiKey, initMap]);
 
+  // Re-render markers if branch list changes
   useEffect(() => {
     if (isLoadedRef.current) renderMarkers();
   }, [renderMarkers]);
@@ -188,6 +168,7 @@ export function MapView({
     });
   }, [selectedBranch]);
 
+  // Handle User Location changes
   useEffect(() => {
     if (
       !userLocation ||
@@ -211,6 +192,7 @@ export function MapView({
     mapInstanceRef.current.setZoom(10);
   }, [userLocation]);
 
+  // Handle Bounds Change
   useEffect(() => {
     if (
       !isLoadedRef.current ||

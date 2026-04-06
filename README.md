@@ -29,6 +29,20 @@
 
 ---
 
+## ✨ Recent Updates (April 2026)
+
+We've recently enhanced the Branch Finder with several performance and UX improvements:
+
+- **Instant Auto-Search**: Removed the manual "Search" button. Results now update automatically as you type, providing a zero-latency experience.
+- **Refined UI & Styles**: 
+  - Updated the **Consent Banner** with a modern, non-intrusive design and improved mobile responsiveness.
+  - Standardized button variants (e.g., using `midnight` for primary actions like "Near me").
+  - Smoother loading states with dedicated `BranchListStatus` indicators.
+- **Improved Global State**: Refactored `useBranchFinderState` for more robust filter handling and cleaner state transitions.
+- **Developer Experience**: Added environment variable support for the GraphQL endpoint (`NEXT_PUBLIC_GQL_ENDPOINT`) to support staging and production environments seamlessly.
+
+---
+
 ## 🛠️ Tech Stack & Why Each Tool Was Chosen
 
 ### Core Framework
@@ -82,42 +96,47 @@
  ┃ └ 📜 globals.css                 # Brand design tokens + base styles
  ┃
  ┣ 📂 components/
- ┃ ┣ 📂 branch-finder/              # Domain-specific components (feature folder)
- ┃ ┃ ┣ 📜 BranchFinder.tsx          # Orchestrator: wires hooks, state, and subcomponents
- ┃ ┃ ┣ 📜 SearchBar.tsx             # Multi-field search UI (name, city, country, zip)
- ┃ ┃ ┣ 📜 BranchList.tsx            # Infinite scroll list with sort + filter chips
- ┃ ┃ ┣ 📜 BranchCard.tsx            # Single branch card (name, address, distance badge)
- ┃ ┃ ┣ 📜 FilterChips.tsx           # All / US / International toggle buttons
- ┃ ┃ ┣ 📜 MapView.tsx               # Google Maps container + marker management
- ┃ ┃ └ 📜 BranchDetailPanel.tsx     # Animated detail overlay (address, phone, email, directions)
- ┃ ┃
- ┃ ┣ 📂 ui/                         # Generic reusable UI primitives (design system)
- ┃ ┃ ┣ 📜 Button.tsx                # Multi-variant button (primary, secondary, ghost, link…)
- ┃ ┃ ┣ 📜 Card.tsx                  # Motion-enabled card with variants (default, interactive, glass)
- ┃ ┃ ┣ 📜 Badge.tsx                 # Pill-style badge
- ┃ ┃ └ 📜 Spinner.tsx               # Loading indicator
- ┃ ┃
- ┃ ┣ 📂 layout/                     # App shell components
- ┃ ┃ ┣ 📜 navbar.tsx                # Sticky animated navbar with mobile slide-in menu
- ┃ ┃ └ 📜 footer.tsx                # Site footer
- ┃ ┃
- ┃ ┣ 📂 home/                       # Homepage section components
- ┃ ┣ 📂 articles/                   # Articles page components
- ┃ ┣ 📂 about/                      # About page components
- ┃ └ 📂 personal/ business/ wealth/ # Product page components
- ┃
- ┣ 📂 hooks/                        # Custom React hooks (logic layer)
- ┃ ┣ 📜 useBranches.ts              # TanStack Query: fetches + caches all branch data
- ┃ ┣ 📜 useBranchFinderState.ts     # useReducer: centralised finder UI state
- ┃ └ 📜 useGeolocation.ts           # Browser Geolocation API with error code mapping
- ┃
- ┣ 📂 lib/                          # Pure logic, no React
- ┃ ┣ 📜 api.ts                      # GraphQL fetcher with pagination + retry logic
- ┃ ┣ 📜 types.ts                    # All shared TypeScript interfaces & types
- ┃ └ 📂 utils/
- ┃   ┣ 📜 branch.ts                 # Branch-specific: mapApiBranch, filtering, sorting, stats
- ┃   ┣ 📜 geo.ts                    # Geography: Haversine formula, distance formatting, coord parsing
- ┃   └ 📜 common.ts                 # Generic helpers: cn(), debounce(), getInfiniteScrollData()
+┃ ┣ 📂 branch-finder/              # Domain-specific components
+┃ ┃ ┣ 📜 BranchFinder.tsx          # Orchestrator: wires hooks, state, and subcomponents
+┃ ┃ ┣ 📜 BranchFinderHero.tsx      # Hero section with stats and headline
+┃ ┃ ┣ 📜 SearchBar.tsx             # Multi-field auto-search UI
+┃ ┃ ┣ 📜 BranchList.tsx            # Infinite scroll list container
+┃ ┃ ┣ 📜 BranchListHeader.tsx      # Sort & count header for the list
+┃ ┃ ┣ 📜 BranchListStatus.tsx      # Loading, Error, and Empty state displays
+┃ ┃ ┣ 📜 BranchCard.tsx            # Single branch card with distance badge
+┃ ┃ ┣ 📜 FilterChips.tsx           # Category/Region toggle buttons
+┃ ┃ ┣ 📜 MapView.tsx               # Google Maps integration & marker logic
+┃ ┃ ┣ 📜 BranchDetailPanel.tsx     # Modern animated overlay for branch details
+┃ ┃ ┣ 📜 BranchStatsRibbon.tsx     # Animated stats ribbon (Total Branches, Countries)
+┃ ┃ └ 📜 ConsentBanner.tsx         # Modern location & cookie consent UI
+┃ ┃
+┃ ┣ 📂 ui/                         # Generic design system primitives
+┃ ┃ ┣ 📜 Button.tsx                # Multi-variant button component
+┃ ┃ ┣ 📜 Card.tsx                  # Framer-motion enabled cards
+┃ ┃ ┣ 📜 Badge.tsx                 # Pill-style status indicators
+┃ ┃ └ 📜 Spinner.tsx               # Brand-aligned loading indicators
+┃ ┃
+┃ ┣ 📂 layout/                     # Site-wide shell
+┃ ┃ ┣ 📜 navbar.tsx                # Animated navigation with mobile menu
+┃ ┃ └ 📜 footer.tsx                # Global footer
+┃ ┃
+┃ ┣ 📂 home/ 📂 articles/ 📂 about/ # Page-specific sections
+┃ └ 📂 personal/ business/ wealth/ # Vertical-specific components
+┃
+┣ 📂 hooks/                        # Logic layer (React)
+┃ ┣ 📜 useBranches.ts              # Data fetching & caching (TanStack Query)
+┃ ┣ 📜 useBranchFinderState.ts     # Centralized UI state (useReducer)
+┃ └ 📜 useGeolocation.ts           # Browser GPS integration
+┃
+┣ 📂 lib/                          # Pure logic layer (React-agnostic)
+┃ ┣ 📜 api.ts                      # GraphQL client with retry & environment support
+┃ ┣ 📜 types.ts                    # Global TypeScript definitions
+┃ └ 📂 utils/
+┃   ┣ 📜 branch.ts                 # Domain logic: mapping, filtering, sorting
+┃   ┣ 📜 geo.ts                    # Math: Haversine, distance formatting
+┃   ┣ 📜 cookie.ts                 # Lightweight persistent storage manager
+┃   ┣ 📜 map.ts                    # Google Maps helpers and styles
+┃   └ 📜 common.ts                 # Generic helpers: cn(), debounce()
 ```
 
 **Why this folder structure?**
@@ -362,6 +381,7 @@ npx tsc --noEmit # TypeScript type check (no output files)
 | Variable                                | Required | Description                                                    |
 | --------------------------------------- | -------- | -------------------------------------------------------------- |
 | `GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER` | ✅ Yes   | Google Maps JavaScript API key with Maps & Marker APIs enabled |
+| `NEXT_PUBLIC_GQL_ENDPOINT`              | ❌ No    | Custom GraphQL endpoint (defaults to Optimizely Graph V2)      |
 
 ---
 

@@ -2,7 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Search, LocateFixed, ChevronDown, MapPin } from "lucide-react";
+import { Search, ChevronDown, MapPin } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 interface SearchBarProps {
@@ -16,7 +16,6 @@ interface SearchBarProps {
   zipCode: string;
   onZipCodeChange: (v: string) => void;
   availableCountries: string[];
-  onSearch: () => void;
   onLocate: () => void;
   onClear: () => void;
   hasFilters: boolean;
@@ -34,7 +33,6 @@ export function SearchBar({
   zipCode,
   onZipCodeChange,
   availableCountries,
-  onSearch,
   onLocate,
   onClear,
   hasFilters,
@@ -54,7 +52,6 @@ export function SearchBar({
           type="text"
           value={branchName}
           onChange={(e) => onBranchNameChange(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch()}
           placeholder="Branch name..."
           className="w-full bg-transparent outline-none text-[1.05rem] text-midnight placeholder:text-slate/50 font-medium"
         />
@@ -114,7 +111,6 @@ export function SearchBar({
           type="text"
           value={zipCode}
           onChange={(e) => onZipCodeChange(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onSearch()}
           placeholder="Zip code"
           className="w-full bg-transparent outline-none text-[1.05rem] text-midnight placeholder:text-slate/50 font-medium"
         />
@@ -136,21 +132,12 @@ export function SearchBar({
         <Button
           onClick={onLocate}
           disabled={locating}
-          variant="primary"
-          size="md"
-          className="flex-1 lg:flex-none whitespace-nowrap"
-          isLoading={locating}
-        >
-          Near me
-        </Button>
-
-        <Button
-          onClick={onSearch}
           variant="midnight"
           size="md"
           className="flex-1 lg:flex-none px-8"
+          isLoading={locating}
         >
-          Search
+          Near me
         </Button>
       </div>
     </motion.div>

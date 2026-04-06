@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // hooks/useBranchFinderState.ts
-import { useReducer, useMemo } from "react";
+import { useReducer, useMemo, useCallback } from "react";
 import { Branch, FilterType, SortType, State, Action } from "@/lib/types";
 
 // --- Initial State ---
@@ -62,49 +62,38 @@ export function useBranchFinderState() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   // Helper functions to dispatch actions easily
-  const setInput = (field: keyof State["inputs"], value: string) => {
+  const setInput = useCallback((field: keyof State["inputs"], value: string) => {
     dispatch({ type: "SET_INPUT", field, value });
-  };
+  }, []);
 
-  const applySearch = () => {
+  const applySearch = useCallback(() => {
     dispatch({ type: "APPLY_SEARCH" });
-  };
+  }, []);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     dispatch({ type: "CLEAR_ALL" });
-  };
+  }, []);
 
-  const setFilterType = (filter: FilterType) => {
+  const setFilterType = useCallback((filter: FilterType) => {
     dispatch({ type: "SET_FILTER_TYPE", payload: filter });
-  };
+  }, []);
 
-  const setSort = (sort: SortType) => {
+  const setSort = useCallback((sort: SortType) => {
     dispatch({ type: "SET_SORT", payload: sort });
-  };
+  }, []);
 
-  // setSortDistance merged into setSort — no need for a separate action type
-  const setSortDistance = () => {
-    dispatch({ type: "SET_SORT", payload: "distance" });
-  };
 
-  const selectBranch = (branch: Branch | null) => {
+  const selectBranch = useCallback((branch: Branch | null) => {
     dispatch({ type: "SELECT_BRANCH", payload: branch });
-  };
+  }, []);
 
   // Calculate if filters are active (for UI indication)
   // Only depends on filter-related state, not selectedBranch
   const hasFilters = useMemo(() => {
     const { inputs, activeFilters, sort } = state;
     return (
-      Boolean(inputs.branchName) ||
-      Boolean(activeFilters.branchName) ||
-      Boolean(inputs.city) ||
-      Boolean(activeFilters.city) ||
-      Boolean(inputs.country) ||
-      Boolean(activeFilters.country) ||
-      Boolean(inputs.zipCode) ||
-      Boolean(activeFilters.zipCode) ||
-      activeFilters.type !== "all" ||
+      Object.values(inputs).some(Boolean) ||
+      Object.values(activeFilters).some((v) => v !== "" && v !== "all") ||
       sort !== "name"
     );
   }, [state.inputs, state.activeFilters, state.sort]);
@@ -116,7 +105,6 @@ export function useBranchFinderState() {
     clearAll,
     setFilterType,
     setSort,
-    setSortDistance,
     selectBranch,
     hasFilters,
   };

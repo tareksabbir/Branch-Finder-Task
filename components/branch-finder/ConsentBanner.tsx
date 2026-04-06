@@ -38,56 +38,56 @@ export function ConsentBanner({ onAllow }: ConsentBannerProps) {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ y: 100, opacity: 0 }}
+          initial={{ y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-2xl z-[9999]"
+          exit={{ y: "100%", opacity: 0 }}
+          transition={{ type: "spring", damping: 30, stiffness: 300 }}
+          className="fixed bottom-0 left-0 w-full z-9999"
         >
-          <div className="relative overflow-hidden bg-midnight/80 backdrop-blur-xl border border-gold/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 md:p-6">
-            {/* Background Pattern */}
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="relative flex flex-col md:flex-row items-start md:items-center gap-5">
-              {/* Icon */}
-              <div className="shrink-0 w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center">
-                <MapPin className="w-6 h-6 text-gold" />
-              </div>
-
-              {/* Text */}
-              <div className="flex-1">
-                <h3 className="text-warm-white font-semibold text-lg mb-1 flex items-center gap-2">
-                  Find Branches Near You
-                  <ShieldCheck className="w-4 h-4 text-gold/60" />
-                </h3>
-                <p className="text-warm-white/60 text-sm leading-relaxed">
-                  Allow us to use your location for a personalized experience. We use cookies to remember your preference and show you the closest Brightstream branches.
-                </p>
+          <div className="bg-white border-t border-stone-200 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] py-4 md:py-5 px-4 md:px-8">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-8">
+              {/* Icon & Text Group */}
+              <div className="flex items-center gap-4 flex-1">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <h3 className="text-stone-900 font-bold text-base md:text-lg flex items-center gap-2 leading-tight">
+                    Find Branches Near You
+                    <ShieldCheck className="w-4 h-4 text-stone-400" />
+                  </h3>
+                  <p className="text-stone-500 text-xs md:text-sm mt-0.5 leading-relaxed max-w-2xl">
+                    Allow us to use your location for a personalized experience.
+                    We use cookies to remember your preference and show you the
+                    closest Brightstream branches.
+                  </p>
+                </div>
               </div>
 
               {/* Actions */}
-              <div className="flex flex-row md:flex-col lg:flex-row items-center gap-3 w-full md:w-auto shrink-0">
+              <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
                 <button
                   onClick={handleDecline}
-                  className="px-4 py-2.5 text-sm font-medium text-warm-white/40 hover:text-warm-white transition-colors order-2 md:order-1"
+                  className="flex-1 md:flex-none px-6 py-2.5 text-sm font-bold text-stone-400 hover:text-stone-900 transition-colors"
                 >
                   Later
                 </button>
                 <Button
                   onClick={handleAllow}
-                  className="w-full md:w-auto bg-gold hover:bg-gold-light text-midnight font-bold rounded-xl px-6 py-3 shadow-lg shadow-gold/20 order-1 md:order-2"
+                  variant="midnight"
+                  className="flex-1 md:flex-none rounded-full px-10 py-3 text-sm font-bold shadow-xl active:scale-95 bg-midnight hover:bg-midnight-light"
                 >
                   Allow Location
                 </Button>
               </div>
 
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setIsVisible(false)}
-                className="absolute top-2 right-2 p-1 text-warm-white/20 hover:text-warm-white/60 transition-colors"
+                className="absolute top-4 right-4 md:static p-1 text-stone-300 hover:text-stone-900 transition-colors"
                 aria-label="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>

@@ -31,7 +31,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${jost.variable}`}
       suppressHydrationWarning
     >
-      <body className="antialiased">
+      <body className="antialiased" suppressHydrationWarning>
         <Providers>
           <Navbar />
           {children}
