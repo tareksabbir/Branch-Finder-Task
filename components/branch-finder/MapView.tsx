@@ -1,17 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
 import { Branch, GeoLocation } from "@/lib/types";
 import { BranchDetailPanel } from "./BranchDetailPanel";
 import { createBranchPin, createUserPin } from "@/lib/utils/map";
-
-declare global {
-  interface Window {
-    google: typeof google;
-    initGoogleMaps: () => void;
-  }
-}
 
 interface MapViewProps {
   branches: Branch[];
@@ -32,8 +24,12 @@ export function MapView({
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map());
-  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const markersRef = useRef<
+    Map<string, google.maps.marker.AdvancedMarkerElement>
+  >(new Map());
+  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
+    null,
+  );
   const isLoadedRef = useRef(false);
   const prevSelectedIdRef = useRef<string | null>(null);
 
