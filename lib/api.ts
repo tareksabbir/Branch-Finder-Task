@@ -1,8 +1,6 @@
 import { BranchApiItem, BranchApiResponse } from "./types";
 
-const GQL_ENDPOINT =
-  process.env.NEXT_PUBLIC_GQL_ENDPOINT ??
-  "https://cg.optimizely.com/content/v2?auth=iQEyR1jR1cBG5mnLQoRotCyNmKUgaO0DT5cRbJPKA3oZGGQo";
+const INTERNAL_GQL_ENDPOINT = "/api/graphql";
 
 // Note: Retries are handled by TanStack Query (retry: 2 in providers.tsx).
 // Do NOT add retry logic here to avoid compounding retries.
@@ -33,7 +31,7 @@ async function gqlFetch(
   variables: { limit: number; skip: number },
   signal?: AbortSignal,
 ): Promise<BranchApiResponse> {
-  const res = await fetch(GQL_ENDPOINT, {
+  const res = await fetch(INTERNAL_GQL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query: BRANCH_QUERY, variables }),

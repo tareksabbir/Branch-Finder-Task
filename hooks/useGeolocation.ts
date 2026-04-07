@@ -22,24 +22,43 @@ export function useGeolocation(): UseGeolocationReturn {
     setLoading(true);
     setError(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLoading(false);
-        // If they manually trigger this via SearchBar, also treat it as consent
-        setCookie("branch_finder_consent", "allowed", 365);
-      },
-      (err) => {
-        const messages: Record<number, string> = {
-          1: "Location access denied. Please allow location access in your browser.",
-          2: "Your location could not be determined. Try again.",
-          3: "Location request timed out. Please try again.",
-        };
-        setError(messages[err.code] ?? "Unable to determine your location.");
-        setLoading(false);
-      },
-      GEO_OPTIONS,
-    );
+    // Try to proactively check the permission
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: "geolocation" }).then((result) => {
+        if (result.state === "denied") {
+          setError("Location access is blocked. Please enable it in browser settings.");
+          setLoading(false);
+          return;
+        }
+        requestPosition();
+      }).catch(() => {
+        // Fallback for browsers returning unexpected value or throwing error
+        requestPosition();
+      });
+    } else {
+      requestPosition();
+    }
+
+    function requestPosition() {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          setLoading(false);
+          // If they manually trigger this via SearchBar, also treat it as consent
+          setCookie("branch_finder_consent", "allowed", 365);
+        },
+        (err) => {
+          const messages: Record<number, string> = {
+            1: "Location access denied. Please allow location access in your browser.",
+            2: "Your location could not be determined. Try again.",
+            3: "Location request timed out. Please try again.",
+          };
+          setError(messages[err.code] ?? "Unable to determine your location.");
+          setLoading(false);
+        },
+        GEO_OPTIONS,
+      );
+    }
   }, []);
 
   const clearLocation = useCallback(() => {

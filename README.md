@@ -19,11 +19,13 @@
 - [Live Demo & Preview](#-live-demo--preview)
 - [Key Features](#-key-features)
 - [Tech Stack](#️-tech-stack)
-- [Architecture Overview](#-architecture-overview)
+- [Architecture Overview](#️-architecture-overview)
+- [System Design: End-to-End Data Flow](#-system-design-end-to-end-data-flow)
 - [Folder Structure](#-folder-structure)
 - [Core Design Decisions](#-core-design-decisions)
 - [State Management Deep Dive](#-state-management-deep-dive)
 - [Performance Optimizations](#-performance-optimizations)
+- [Why Offset Pagination Over Cursors](#-why-offset-pagination-over-cursors)
 - [Location Consent System](#-location-consent-system)
 - [Local Setup](#-local-setup)
 - [Environment Variables](#-environment-variables)
@@ -50,10 +52,11 @@
 | ⚡ **Zero-Latency Search** | Intelligent client-side filtering of 1,000+ records — results update instantly as you type with 0ms network delay |
 | 📍 **GPS Proximity Sorting** | Real-time distance calculation using the Haversine formula to rank and display the closest branches |
 | 🔗 **Smart Linked Filtering** | Country and City dropdowns are bidirectionally linked — selecting one automatically updates the other for an intuitive search flow |
-| 🗺️ **Interactive Map** | Google Maps integration using modern `AdvancedMarkerElement` with fully custom, brand-aligned HTML pins |
+| 🗺️ **Interactive Map** | Google Maps integration using modern `AdvancedMarkerElement` with fully custom, brand-aligned HTML pins and strict TypeScript support |
 | 🔄 **Parallel Data Loading** | High-speed GraphQL pagination — fetches all data simultaneously using concurrent `Promise.all` requests |
+| 🛡️ **BFF Architecture** | Next.js API Routes proxy GraphQL requests, hiding API tokens from the browser network tab |
 | 🖱️ **Virtualized List** | Uses `@tanstack/react-virtual` for intelligent windowed rendering, ensuring silky-smooth performance and low DOM overhead on large datasets |
-| 🍪 **Location Persistence** | Smart consent system with highly resilient Cookie + LocalStorage hybrid storage — returning users skip permission prompts entirely |
+| 🍪 **Location Persistence** | Smart consent system with native permissions intercept and highly resilient Cookie + LocalStorage hybrid storage |
 | 🎨 **Premium Animations** | Framer Motion powered page transitions, staggered card reveals, and spring-physics detail panels |
 | 🔁 **Retry & Resilience** | Exponential backoff retry logic with `AbortSignal` support on all GraphQL requests |
 
@@ -118,6 +121,245 @@ The application follows a clean, three-layer architecture:
 
 ---
 
+## 🔬 System Design: End-to-End Data Flow
+
+This section walks through exactly what happens from the moment a user opens the Branch Finder page to when results appear on screen — step by step.
+
+---
+
+### Step 1 — App Bootstrap (Next.js Root Layout)
+
+```
+browser request
+  └─▶ app/layout.tsx
+        ├─ loads Playfair Display + Jost fonts via next/font (zero layout shift)
+        ├─ wraps everything in <Providers> (TanStack QueryClientProvider)
+        │     └─ QueryClient config: retry: 2, refetchOnWindowFocus: false
+        ├─ renders <Navbar />
+        ├─ renders {children}  ← the active route's page component
+        └─ renders <Footer />
+```
+
+The `QueryClient` is instantiated inside a `useState` call so it is created **once per client session** and never replaced across re-renders.
+
+---
+
+### Step 2 — Data Fetching Pipeline (`useBranches` → `lib/api.ts`)
+
+When `BranchFinder.tsx` mounts, it calls `useBranches()`, which registers a TanStack Query job:
+
+```
+useBranches()
+  └─▶ TanStack Query checks cache ["branches"]
+        ├─ HIT (within 1hr staleTime) → returns cached data immediately, no network
+        └─ MISS → calls fetchAllBranches(signal)
+                    ├─ Scout request: gqlFetch({ limit: 100, skip: 0 })
+                    │     └─ discovers total (e.g. 1,247 branches)
+                    │     └─ fetches first 100 items
+                    │
+                    ├─ pageCount = Math.ceil((1247 - 100) / 100) = 12 more pages
+                    │
+                    └─ Promise.all([
+                         gqlFetch({ limit:100, skip:100 }),
+                         gqlFetch({ limit:100, skip:200 }),
+                         ...12 requests in parallel
+                       ])
+                         └─ all pages resolve → items flattened → mapped via mapApiBranch()
+                               └─ BranchApiItem (PascalCase) → Branch (camelCase, with lat/lng)
+                               └─ cached for 1hr staleTime / 2hr gcTime
+```
+
+**Why no sequential cursor chain?** All offsets are known after the scout request. Parallel fetching reduces total load time from `N × RTT` to `~1 RTT` regardless of page count.
+
+**Backend-For-Frontend (BFF) Proxy:** All requests are routed through an internal Next.js API route (`/api/graphql`) rather than hitting Optimizely Graph directly from the browser. This hides the endpoint URL and Auth Token on the server-side, securing credentials from being bundled into client JavaScript.
+
+---
+
+### Step 3 — State Initialization (`useBranchFinderState`)
+
+`BranchFinder.tsx` simultaneously initializes the UI state machine:
+
+```
+useBranchFinderState()
+  └─▶ useReducer(reducer, initialState)
+        initialState = {
+          inputs:        { branchName:"", city:"", country:"", zipCode:"" },
+          activeFilters: { branchName:"", city:"", country:"", zipCode:"", type:"all" },
+          sort:          "name",
+          selectedBranch: null
+        }
+  └─▶ returns: { state, setInput, applySearch, clearAll,
+                  setFilterType, setSort, selectBranch, hasFilters }
+```
+
+All dispatcher functions are wrapped in `useCallback([])` — they are **referentially stable** across every render, which prevents child components from re-rendering when the parent re-renders.
+
+---
+
+### Step 4 — Consent Check & Auto-Locate on Mount
+
+```
+BranchFinder useEffect (runs once on mount)
+  └─ getCookie("branch_finder_consent")
+       ├─ "allowed" → handleLocate() called immediately
+       │    └─ useGeolocation.getLocation() → navigator.geolocation.getCurrentPosition()
+       │    └─ setSort("distance")  ← auto-switch sort to distance
+       └─ null/"denied" → ConsentBanner renders (slide-in animation)
+```
+
+---
+
+### Step 5 — Derived Data Computation (`useMemo` pipeline)
+
+Once `allBranches` is populated from cache, a chain of `useMemo` calls computes derived data:
+
+```
+allBranches (from cache)
+  │
+  ├─▶ [memo] getAvailableCountries(allBranches)  → string[]   (runs once)
+  ├─▶ [memo] getAvailableCities(allBranches)      → string[]   (runs once)
+  ├─▶ [memo] getCityCountryMap(allBranches)       → { cityToCountry, countryToCities } (runs once)
+  ├─▶ [memo] getBranchStats(allBranches)          → { total, countries } (runs once)
+  │
+  ├─▶ [memo] calculateDistances(allBranches, location)  → Branch[] with .distance
+  │          ^ re-runs ONLY when GPS location changes
+  │
+  └─▶ [memo] getProcessedBranches(branchesWithDistance, activeFilters, sort)
+             ^ re-runs on every filter/sort change (cheap — no math, just filter+sort)
+               └─ applies: branchName, city, country, zipCode, type filters
+               └─ sorts by: name | distance | country
+               └─▶ displayBranches  (what the list renders)
+
+  └─▶ [memo] mapBranches (capped to 100 if no active filters, to protect Google Maps)
+             ^ displayBranches.slice(0, 100) when hasFilters === false
+```
+
+**Key insight:** Distance calculation (expensive — runs Haversine across 1,000+ items) is memoized separately from filtering (cheap). Typing in the search box never re-triggers the Haversine loop.
+
+---
+
+### Step 6 — Debounced Search Trigger
+
+```
+user types in SearchBar
+  └─▶ setInput(field, value)  → reducer: SET_INPUT action
+        └─▶ state.inputs updated (inputs ≠ activeFilters yet)
+              └─▶ useEffect watching [state.inputs] fires
+                    └─▶ setTimeout(applySearch, 400ms)
+                          └─▶ reducer: APPLY_SEARCH action
+                                └─▶ activeFilters ← copied from current inputs
+                                      └─▶ getProcessedBranches() re-runs
+                                            └─▶ list and map update
+```
+
+400ms debounce balances responsiveness with avoiding unnecessary re-renders on every keystroke.
+
+---
+
+### Step 7 — Smart Linked Filter (City ↔ Country)
+
+```
+user selects a CITY
+  └─▶ handleCityChange(city)
+        ├─ setInput("city", city)
+        └─ cityToCountry.get(city) → mapped country
+             └─ setInput("country", mappedCountry)  ← auto-fills country
+
+user selects a COUNTRY
+  └─▶ handleCountryChange(country)
+        ├─ setInput("country", country)
+        └─ if current city ∉ that country's cities:
+             └─ setInput("city", "")  ← clears invalid city
+
+availableCities list:
+  └─▶ [memo] if country selected → countryToCities.get(country) (filtered)
+             else                → allCities (full list)
+```
+
+---
+
+### Step 8 — Component Prop Wiring
+
+```
+BranchFinder.tsx  (orchestrator — owns all state and derived data)
+  │
+  ├─▶ <BranchFinderHero>
+  │     Props: totalBranches, totalCountries, branchName, city, country, zipCode,
+  │            availableCities, availableCountries, hasFilters, locating
+  │     Events: onBranchNameChange, onCityChange, onCountryChange,
+  │             onZipCodeChange, onLocate, onClear
+  │       └─▶ <SearchBar>         search fields + near-me button
+  │       └─▶ <BranchStatsRibbon> animated total + countries display
+  │
+  ├─▶ <MapView>
+  │     Props: branches (capped), selectedBranch, userLocation, apiKey
+  │     Events: onSelectBranch, onCloseDetail
+  │       └─▶ <BranchDetailPanel>  slide-in overlay (conditional render)
+  │
+  ├─▶ <BranchList>
+  │     Props: branches (full filtered), isLoading, isError, activeFilter,
+  │            activeSort, selectedId
+  │     Events: onFilterChange, onSortChange, onSelect
+  │       └─▶ <BranchListHeader>  sort + filter controls
+  │       └─▶ <BranchListStatus>  loading / error / empty states
+  │       └─▶ <BranchCard> ×N    (only visible ones — react-virtual)
+  │
+  └─▶ <ConsentBanner>
+        Events: onAllow → triggers handleLocate()
+```
+
+---
+
+### Step 9 — MapView Lifecycle (Google Maps)
+
+```
+<MapView> mounts
+  └─▶ checks: window.google?.maps?.marker already loaded?
+        ├─ YES → initMap() immediately
+        └─ NO  → injects <script> tag dynamically with callback=initGoogleMaps
+                   └─▶ window.initGoogleMaps = initMap (global callback)
+                          └─▶ Google Maps SDK loads → calls initMap()
+
+initMap()
+  └─▶ new google.maps.Map(mapRef.current, { mapId, zoom:5, center: USA })
+  └─▶ ResizeObserver attached → triggers map "resize" event on container resize
+  └─▶ renderMarkers() called
+
+renderMarkers()  (called when branch list changes)
+  └─▶ clears all existing AdvancedMarkerElement instances (.map = null)
+  └─▶ creates new AdvancedMarkerElement for each branch
+        └─▶ content: createBranchPin(isSelected) — custom HTML div element
+        └─▶ gmp-click listener → onSelectBranch(branch)
+
+branch selected (selectedBranch prop changes)
+  └─▶ lightweight pin swap (NO full re-render):
+        ├─ prev marker: createBranchPin(false) → deselected style
+        └─ next marker: createBranchPin(true)  → selected style (gold, larger)
+        └─ mapInstance.moveCamera({ center, zoom: 14 }) → smooth pan + zoom
+
+user location changes
+  └─▶ old userMarkerRef.current?.map = null (remove)
+  └─▶ new AdvancedMarkerElement at userLocation with createUserPin()
+  └─▶ mapInstance.panTo(userLocation) + setZoom(10)
+```
+
+---
+
+### Step 10 — React Render Optimization Summary
+
+| Technique | Where Applied | Effect |
+|---|---|---|
+| `React.memo` + custom comparator | `BranchCard` | Only re-renders when id, distance, isActive, or onSelect changes |
+| `useCallback([])` | All dispatch wrappers in `useBranchFinderState` | Stable references → memo'd children don't re-render |
+| `useMemo` — distance layer | `branchesWithDistance` | Haversine runs only on GPS change, not on every keystroke |
+| `useMemo` — filter layer | `displayBranches` | Filtering runs on filter change, skips expensive distance math |
+| `useMemo` — map cap | `mapBranches` | Google Maps never receives >100 markers without active filter |
+| `useVirtualizer` | `BranchList` | DOM always contains only ~10–15 visible cards regardless of total |
+| In-place pin swap | `MapView` | Selection never triggers full marker re-render — just 2 DOM mutations |
+| `AbortSignal` | `fetchAllBranches` | Route change cancels in-flight GraphQL requests automatically |
+
+---
+
 ## 📁 Folder Structure
 
 ```text
@@ -137,7 +379,7 @@ The application follows a clean, three-layer architecture:
  ┃ ┃ ┣ 📜 BranchFinder.tsx          # Orchestrator: wires hooks, state, and all subcomponents
  ┃ ┃ ┣ 📜 BranchFinderHero.tsx      # Hero section with animated stats and headline
  ┃ ┃ ┣ 📜 SearchBar.tsx             # Multi-field auto-search UI
- ┃ ┃ ┣ 📜 BranchList.tsx            # Infinite scroll list using IntersectionObserver
+ ┃ ┃ ┣ 📜 BranchList.tsx            # Virtualized scrollable list using @tanstack/react-virtual
  ┃ ┃ ┣ 📜 BranchListHeader.tsx      # Sort controls and result count header
  ┃ ┃ ┣ 📜 BranchListStatus.tsx      # Loading, Error, and Empty state displays
  ┃ ┃ ┣ 📜 BranchCard.tsx            # Single branch card with distance badge (React.memo optimized)
@@ -172,8 +414,8 @@ The application follows a clean, three-layer architecture:
  ┃   ┣ 📜 branch.ts                 # Domain logic: API mapping, filtering, sorting
  ┃   ┣ 📜 geo.ts                    # Math utilities: Haversine formula, distance formatting
  ┃   ┣ 📜 cookie.ts                 # Lightweight persistent preference manager
- ┃   ┣ 📜 map.ts                    # Google Maps helpers and custom style definitions
- ┃   └ 📜 common.ts                 # Generic helpers: cn(), debounce(), infinite scroll math
+ ┃   ┣ 📜 map.ts                    # Google Maps helpers: custom HTML pin factories for branch and user location markers
+ ┃   └ 📜 common.ts                 # Generic helpers: cn() classNames utility
 ```
 
 ### Why This Structure?
@@ -204,17 +446,14 @@ All searches:  0ms — pure in-memory filtering, no network
 
 ---
 
-### 2. Parallel GraphQL Pagination with Scout + Retry
+### 2. Parallel GraphQL Pagination with Scout + Resilience
 
-Optimizely Graph enforces a 100-item page limit. Instead of sequential fetching, the app uses:
+Optimizely Graph enforces a 100-item page limit. Instead of sequential fetching, the app fires all page requests simultaneously with `Promise.all` after a single scout request determines the `total`.
 
-1. **Scout Request** — a small initial query to determine the total record count
-2. **Parallelization** — all remaining page requests fire simultaneously via `Promise.all`
-3. **Resilience** — `gqlFetch` in `lib/api.ts` implements recursive **exponential backoff** (up to 2 retries) and `AbortSignal` support for graceful cancellation
+> For the full data fetching flow with code diagrams, see [System Design Step 2](#step-2--data-fetching-pipeline-usebranches--libapits).
 
 ```typescript
-// Sequential (slow): 10 pages × 300ms = ~3 seconds
-// Parallel (fast):   10 pages fired at once = ~300ms total
+// Sequential: N pages × 300ms = seconds | Parallel: always ~300ms
 const pages = await Promise.all(pageRequests);
 ```
 
@@ -234,21 +473,9 @@ Rendering 1,000+ DOM nodes simultaneously would freeze any device. Previously, t
 
 ### 4. Decoupled Geospatial Processing
 
-Haversine distance is computed across 1,000+ items — an expensive operation. This is strictly decoupled from filtering to keep search fluid:
+Haversine distance computation (runs across 1,000+ items) is memoized separately from filter/sort so that typing in the search box never re-triggers the expensive distance loop.
 
-```typescript
-// Expensive — only re-runs when GPS coordinates actually change
-const branchesWithDistance = useMemo(
-  () => calculateDistances(allBranches, location),
-  [allBranches, location],
-);
-
-// Cheap — runs on every keystroke without recomputing distances
-const displayBranches = useMemo(
-  () => getProcessedBranches(branchesWithDistance, activeFilters, sort),
-  [branchesWithDistance, activeFilters, sort],
-);
-```
+> For the full `useMemo` pipeline with dependency breakdown, see [System Design Step 5](#step-5--derived-data-computation-usememo-pipeline).
 
 ---
 
@@ -258,6 +485,51 @@ Rendering 1,000 `AdvancedMarkerElement` nodes simultaneously would freeze the Go
 
 - **No active filter:** Display is capped to the **top 100 closest markers**
 - **Filter applied:** The cap is lifted automatically, since the result set is naturally smaller
+
+---
+
+### 6. Why Offset Pagination Over Cursors
+
+Optimizely Graph exposes both a cursor field and `skip`/`limit` offset parameters. This was a deliberate decision — **offset pagination was chosen over cursor-based pagination** for this architecture.
+
+#### The Core Incompatibility: Cursors Are Sequential
+
+Cursor-based pagination means each page's starting point depends on the *previous page's* response. Page 2's cursor only exists after page 1 has resolved. This forces a **sequential waterfall**:
+
+```
+// Cursor-based fetch-all — unavoidably sequential:
+page1 = await fetch(cursor: null)
+page2 = await fetch(cursor: page1.cursor)  // blocked until page1 finishes
+page3 = await fetch(cursor: page2.cursor)  // blocked until page2 finishes
+// N pages × ~300ms = seconds of serial waiting
+```
+
+Offset pagination, by contrast, makes all page positions **deterministically computable** from a single `total` count — no page depends on another:
+
+```typescript
+// Offset-based fetch-all — fully parallelisable:
+const offsets = [100, 200, 300, ...]; // computed instantly from `total`
+const pages = await Promise.all(
+  offsets.map(skip => gqlFetch({ limit: 100, skip }))
+);
+// All pages in-flight simultaneously → fastest possible total time
+```
+
+#### Decision Matrix
+
+| Concern | `skip`/`limit` (chosen) | Cursor-based |
+|---|---|---|
+| **Parallel fetching** | ✅ All pages fire simultaneously | ❌ Strictly sequential — each page blocks the next |
+| **Fetch-all speed** | ✅ ~300ms regardless of page count | ❌ Grows linearly: N pages × RTT |
+| **Random page access** | ✅ `skip = page × limit` — instant | ❌ Must replay every prior cursor to reach a page |
+| **Data consistency** | ⚠️ Stable for rarely-changing data (branches) | ✅ Handles live-inserting datasets better |
+| **Implementation complexity** | ✅ Simple, stateless, testable | ❌ Requires cursor state threaded between requests |
+
+#### When Cursors Would Be the Right Choice
+
+Cursor-based pagination is the correct tool when **lazy/incremental loading** is the goal — loading 20 items at a time as a user clicks "Load More", with live data that could shift between fetches. Since this app fetches *everything upfront once* and then filters entirely in-memory, cursors provide no benefit and impose a significant performance penalty.
+
+> **Rule of thumb:** Use cursors for incremental UX (load-more, live feeds). Use offsets when you need parallel bulk fetching of a stable dataset.
 
 ---
 
@@ -280,9 +552,9 @@ The Branch Finder manages **8 interconnected pieces of state**:
     city: string;
     country: string;
     zipCode: string;
-    type: BranchType | null;
+    type: "all" | "us" | "international"; // FilterType
   };
-  sort: "name" | "distance" | "country";
+  sort: "name" | "distance" | "country";   // SortType
   selectedBranch: Branch | null;
 }
 ```
@@ -315,29 +587,15 @@ const { state, setInput, applySearch, clearAll } = useBranchFinderState();
 
 ### Component Tree & Render Isolation
 
-`BranchFinder.tsx` orchestrates everything, but the UI is split into isolated subtrees to prevent cascading re-renders:
+`BranchFinder.tsx` orchestrates everything but the UI is split into isolated subtrees:
 
-```text
-BranchFinder.tsx           ← Parent: owns all state, performs data mapping
-  ├── BranchFinderHero.tsx ← Context Isolation: search + stats render independently
-  │     ├── SearchBar.tsx
-  │     └── BranchStatsRibbon.tsx
-  ├── MapView.tsx           ← Lifecycle Isolation: Google Maps managed separately from list
-  │     └── BranchDetailPanel.tsx
-  ├── BranchList.tsx        ← Iteration Isolation: owns scroll state and DOM Virtualization
-  │     ├── BranchListHeader.tsx
-  │     ├── BranchListStatus.tsx
-  │     └── BranchCard.tsx  ← Leaf: wrapped in React.memo, re-renders only on prop changes
-  └── ConsentBanner.tsx     ← Utility: persistent permission manager, decoupled from core
-```
+- `BranchFinderHero` owns search inputs — typing never re-renders the map
+- `MapView` manages the Google Maps lifecycle independently from the list
+- `BranchList` owns scroll and virtualizer state — isolated from parent re-renders
+- `BranchCard` is wrapped in `React.memo` with a custom comparator — only re-renders when its own data changes
 
-**Without this split:**
-- Every keystroke in the search bar would trigger a full re-render of the Google Maps instance
-- Selecting a branch would force all 1,000+ `BranchCard` nodes to re-render
-
-**With this split:**
-- Search state is isolated inside `BranchFinderHero`, leaving the map completely untouched
-- `React.memo` on `BranchCard` + `useCallback` on event handlers ensures only the two toggled cards re-render on selection
+> For the full component prop wiring diagram see [System Design Step 8](#step-8--component-prop-wiring).  
+> For the complete render optimization breakdown see [System Design Step 10](#step-10--react-render-optimization-summary).
 
 ---
 
@@ -372,8 +630,7 @@ These functions know about the `Branch` type and business rules. They form the d
 ### `common.ts` — Generic Utilities
 
 ```typescript
-cn()                    // classNames helper (like clsx)
-getInfiniteScrollData() // Pagination math for the infinite scroll chunker
+cn()   // classNames helper (like clsx) — merges conditional class strings
 ```
 
 Zero knowledge of branches or geography. Freely reusable across the entire project.
@@ -394,6 +651,11 @@ A custom, non-intrusive location consent flow built to handle common mobile brow
 
 ### Technical Implementation
 
+**1. Native Permission Intercept**
+The `useGeolocation.ts` hook actively queries the native `navigator.permissions` API. If the OS or browser has explicitly blocked location access, it intercepts the action and outputs a helpful error instructing the user to check settings, instead of failing silently.
+
+**2. Storage Persistence**
+
 ```typescript
 // lib/utils/cookie.ts — Hybrid Cookie + LocalStorage preference storage
 // Uses localStorage as a bulletproof fallback if browsers block strict cookies locally
@@ -404,7 +666,7 @@ getCookie("branch_finder_consent"); // → "allowed" | "denied" | null
 useEffect(() => {
   const consent = getCookie("branch_finder_consent");
   if (consent === "allowed") {
-    requestGeolocation(); // Skip the banner entirely for returning users
+    handleLocate(); // Skip the banner entirely for returning users
   }
 }, []);
 ```
@@ -433,8 +695,8 @@ Edit `.env.local` with your credentials:
 # Required — Google Maps JavaScript API key (Maps + Marker APIs must be enabled)
 GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER=your_google_maps_api_key_here
 
-# Optional — override the default GraphQL endpoint
-# NEXT_PUBLIC_GQL_ENDPOINT=https://your-custom-endpoint.com
+# Optional — override the default GraphQL endpoint internally
+# OPTIMIZELY_GRAPH_ENDPOINT=https://your-custom-endpoint.com
 ```
 
 ```bash
@@ -451,7 +713,7 @@ Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 | Variable | Required | Description |
 |---|---|---|
 | `GOOGLE_MAPS_API_KEY_FOR_BRANCH_FINDER` | ✅ Yes | Google Maps JavaScript API key. Requires the **Maps JavaScript API** and **Map Marker API** to be enabled in Google Cloud Console |
-| `NEXT_PUBLIC_GQL_ENDPOINT` | ❌ No | Custom GraphQL endpoint. Defaults to the Optimizely Graph V2 endpoint if not set |
+| `OPTIMIZELY_GRAPH_ENDPOINT` | ❌ No | Custom Server-side GraphQL endpoint. Defaults to the internal Optimizely Graph V2 fallback if not set |
 
 ---
 

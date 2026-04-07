@@ -6,13 +6,9 @@ import { Branch, GeoLocation } from "@/lib/types";
 import { BranchDetailPanel } from "./BranchDetailPanel";
 import { createBranchPin, createUserPin } from "@/lib/utils/map";
 
-// Define local types for better readability even if using 'any' for the library
-type GoogleMap = any;
-type AdvancedMarker = any;
-
 declare global {
   interface Window {
-    google: any;
+    google: typeof google;
     initGoogleMaps: () => void;
   }
 }
@@ -35,9 +31,9 @@ export function MapView({
   apiKey,
 }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<GoogleMap>(null);
-  const markersRef = useRef<Map<string, AdvancedMarker>>(new Map());
-  const userMarkerRef = useRef<AdvancedMarker>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markersRef = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map());
+  const userMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const isLoadedRef = useRef(false);
   const prevSelectedIdRef = useRef<string | null>(null);
 
