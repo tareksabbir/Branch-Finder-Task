@@ -38,6 +38,7 @@ export function BranchList({
     getScrollElement: () => scrollRef.current,
     estimateSize: () => 160,
     overscan: 5,
+    getItemKey: (index) => branches[index]?.id || index,
   });
 
   useEffect(() => {

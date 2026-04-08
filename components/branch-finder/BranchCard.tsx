@@ -24,7 +24,7 @@ export const BranchCard = memo(
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: Math.min(index * 0.04, 0.4) }}
-        className="mb-2.5 group"
+        className="group"
       >
         {/* Left accent bar */}
         <div
