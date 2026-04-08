@@ -11,12 +11,7 @@ interface BranchCardProps {
 }
 
 export const BranchCard = memo(
-  function BranchCard({
-    branch,
-    isActive,
-    index,
-    onSelect,
-  }: BranchCardProps) {
+  function BranchCard({ branch, isActive, index, onSelect }: BranchCardProps) {
     const handleClick = useCallback(() => {
       onSelect(branch);
     }, [branch, onSelect]);

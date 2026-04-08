@@ -89,7 +89,10 @@ export function BranchFinder() {
         const countryCities = cityCountryMap.countryToCities.get(val);
         const currentCity = state.inputs.city;
         // If current city doesn't belong to the newly selected country, clear it
-        if (currentCity && (!countryCities || !countryCities.includes(currentCity))) {
+        if (
+          currentCity &&
+          (!countryCities || !countryCities.includes(currentCity))
+        ) {
           setInput("city", "");
         }
       }

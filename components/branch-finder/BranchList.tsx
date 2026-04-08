@@ -36,7 +36,7 @@ export function BranchList({
   const rowVirtualizer = useVirtualizer({
     count: branches.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 160, 
+    estimateSize: () => 160,
     overscan: 5,
   });
 
